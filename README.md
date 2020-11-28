@@ -13,6 +13,7 @@
  
 ## TODO
 
+- Notify on takeoff
 - Setup layout
 - Display basic data
 - Activity recording

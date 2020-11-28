@@ -15,6 +15,5 @@ class PPGPilotDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function onSelect() {
-        parentView.kickBall();
     }
 }
