@@ -2,162 +2,75 @@
 <debugInfo>
     <manifest filename="C:\Users\Vassilis\eclipse-workspace\PPGPilot\manifest.xml"/>
     <pcToLineNum>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="3" lineNum="35" pc="268435456" symbol="initialize"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="3" lineNum="36" pc="268435460" symbol="initialize"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="4" lineNum="40" pc="268435479" symbol="onLayout"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="4" lineNum="41" pc="268435483" symbol="onLayout"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="4" lineNum="42" pc="268435517" symbol="onLayout"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="4" lineNum="44" pc="268435558" symbol="onLayout"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="4" lineNum="45" pc="268435577" symbol="onLayout"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="4" lineNum="46" pc="268435596" symbol="onLayout"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="4" lineNum="47" pc="268435618" symbol="onLayout"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="4" lineNum="48" pc="268435640" symbol="onLayout"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="4" lineNum="49" pc="268435653" symbol="onLayout"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="5" lineNum="53" pc="268435667" symbol="onShow"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="57" pc="268435672" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="58" pc="268435676" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="59" pc="268435712" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="61" pc="268435724" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="62" pc="268435760" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="64" pc="268435814" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="65" pc="268435827" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="66" pc="268435827" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="67" pc="268435827" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="68" pc="268435827" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="70" pc="268435827" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="73" pc="268435863" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="74" pc="268435891" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="75" pc="268435919" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="78" pc="268435951" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="79" pc="268435985" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="80" pc="268436019" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="81" pc="268436032" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="82" pc="268436045" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="85" pc="268436077" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="86" pc="268436111" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="87" pc="268436145" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="88" pc="268436158" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="89" pc="268436171" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="92" pc="268436206" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="93" pc="268436242" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="94" pc="268436255" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="95" pc="268436330" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="96" pc="268436405" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="98" pc="268436483" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="101" pc="268436543" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="102" pc="268436556" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="103" pc="268436640" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="104" pc="268436724" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="106" pc="268436811" symbol="onUpdate"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="111" pc="268436881" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="112" pc="268436885" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="114" pc="268436902" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="115" pc="268436929" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="116" pc="268436945" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="117" pc="268436961" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="120" pc="268436983" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="121" pc="268437020" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="123" pc="268437039" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="124" pc="268437076" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="128" pc="268437095" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="129" pc="268437126" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="130" pc="268437157" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="131" pc="268437177" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="132" pc="268437202" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="133" pc="268437228" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="135" pc="268437253" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="138" pc="268437266" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="139" pc="268437286" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="140" pc="268437311" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="141" pc="268437337" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="143" pc="268437362" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="148" pc="268437375" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="149" pc="268437406" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="152" pc="268437437" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="153" pc="268437463" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="154" pc="268437494" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="155" pc="268437513" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="156" pc="268437547" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="157" pc="268437576" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="158" pc="268437616" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="159" pc="268437635" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="162" pc="268437669" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="163" pc="268437695" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="164" pc="268437726" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="165" pc="268437745" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="166" pc="268437779" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="167" pc="268437808" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="168" pc="268437848" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="169" pc="268437867" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="173" pc="268437904" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="174" pc="268437931" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="175" pc="268437947" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="176" pc="268437963" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="178" pc="268437985" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="180" pc="268438047" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="181" pc="268438058" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="182" pc="268438071" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="184" pc="268438087" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="185" pc="268438100" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="189" pc="268438116" symbol="timerCallback"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="8" lineNum="192" pc="268438133" symbol="kickBall"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="8" lineNum="194" pc="268438137" symbol="kickBall"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="8" lineNum="195" pc="268438160" symbol="kickBall"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="8" lineNum="196" pc="268438173" symbol="kickBall"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="8" lineNum="197" pc="268438222" symbol="kickBall"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="9" lineNum="203" pc="268438275" symbol="onHide"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotDelegate.mc" id="11" lineNum="12" pc="268438280" symbol="initialize"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotDelegate.mc" id="11" lineNum="13" pc="268438284" symbol="initialize"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotDelegate.mc" id="11" lineNum="14" pc="268438302" symbol="initialize"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotDelegate.mc" id="12" lineNum="17" pc="268438313" symbol="onSelect"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotDelegate.mc" id="12" lineNum="18" pc="268438317" symbol="onSelect"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotApp.mc" id="14" lineNum="11" pc="268438336" symbol="initialize"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotApp.mc" id="14" lineNum="12" pc="268438340" symbol="initialize"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotApp.mc" id="15" lineNum="16" pc="268438359" symbol="onStart"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotApp.mc" id="16" lineNum="20" pc="268438364" symbol="onStop"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotApp.mc" id="17" lineNum="24" pc="268438369" symbol="getInitialView"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotApp.mc" id="17" lineNum="25" pc="268438373" symbol="getInitialView"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotApp.mc" id="17" lineNum="26" pc="268438397" symbol="getInitialView"/>
-        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotApp.mc" id="17" lineNum="27" pc="268438423" symbol="getInitialView"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\SimpleDataField.mc" id="3" lineNum="6" pc="268435456" symbol="initialize"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\SimpleDataField.mc" id="3" lineNum="7" pc="268435460" symbol="initialize"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\SimpleDataField.mc" id="3" lineNum="8" pc="268435478" symbol="initialize"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\SimpleDataField.mc" id="4" lineNum="12" pc="268435492" symbol="compute"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\SimpleDataField.mc" id="4" lineNum="13" pc="268435496" symbol="compute"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="18" pc="268435503" symbol="initialize"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="6" lineNum="19" pc="268435507" symbol="initialize"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="23" pc="268435526" symbol="onLayout"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="25" pc="268435530" symbol="onLayout"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="26" pc="268435564" symbol="onLayout"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="28" pc="268435605" symbol="onLayout"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="7" lineNum="29" pc="268435624" symbol="onLayout"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="8" lineNum="33" pc="268435644" symbol="onShow"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="9" lineNum="37" pc="268435649" symbol="onUpdate"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="9" lineNum="39" pc="268435653" symbol="onUpdate"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="9" lineNum="40" pc="268435689" symbol="onUpdate"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="9" lineNum="43" pc="268435701" symbol="onUpdate"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="9" lineNum="44" pc="268435737" symbol="onUpdate"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="10" lineNum="50" pc="268435820" symbol="timerCallback"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="10" lineNum="51" pc="268435824" symbol="timerCallback"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="10" lineNum="53" pc="268435841" symbol="timerCallback"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="11" lineNum="56" pc="268435858" symbol="kickBall"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="11" lineNum="58" pc="268435862" symbol="kickBall"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotView.mc" id="12" lineNum="63" pc="268435886" symbol="onHide"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotDelegate.mc" id="14" lineNum="12" pc="268435891" symbol="initialize"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotDelegate.mc" id="14" lineNum="13" pc="268435895" symbol="initialize"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotDelegate.mc" id="14" lineNum="14" pc="268435913" symbol="initialize"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotDelegate.mc" id="15" lineNum="17" pc="268435924" symbol="onSelect"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotDelegate.mc" id="15" lineNum="18" pc="268435928" symbol="onSelect"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotApp.mc" id="17" lineNum="11" pc="268435947" symbol="initialize"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotApp.mc" id="17" lineNum="12" pc="268435951" symbol="initialize"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotApp.mc" id="18" lineNum="16" pc="268435970" symbol="onStart"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotApp.mc" id="19" lineNum="20" pc="268435975" symbol="onStop"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotApp.mc" id="20" lineNum="24" pc="268435980" symbol="getInitialView"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotApp.mc" id="20" lineNum="25" pc="268435984" symbol="getInitialView"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotApp.mc" id="20" lineNum="26" pc="268436008" symbol="getInitialView"/>
+        <entry filename="C:\\Users\\Vassilis\\eclipse-workspace\\PPGPilot\\source\\PPGPilotApp.mc" id="20" lineNum="27" pc="268436034" symbol="getInitialView"/>
     </pcToLineNum>
     <symbolTable>
         <entry id="8388639" module="true" symbol="Graphics"/>
         <entry id="8388632" method="true" symbol="&lt;init&gt;"/>
         <entry id="4" module="true" symbol="globals/Rez/Menus"/>
-        <entry field="true" id="18" symbol="incrFrict"/>
-        <entry field="true" id="20" symbol="wallLoss"/>
-        <entry field="true" id="8389605" symbol="accel"/>
+        <entry id="9" object="true" symbol="MySimpleHRField"/>
         <entry field="true" id="8388611" module="true" symbol="Toybox"/>
-        <entry field="true" id="26" symbol="yVelocity"/>
-        <entry field="true" id="27" symbol="xMult"/>
-        <entry field="true" id="15" symbol="AppName"/>
-        <entry id="30" method="true" symbol="kickBall"/>
+        <entry field="true" id="16" symbol="AppName"/>
+        <entry id="20" method="true" symbol="kickBall"/>
         <entry id="8" module="true" symbol="globals/Rez/Strings"/>
         <entry id="8388772" module="true" object="true" symbol="Fonts"/>
         <entry id="8388648" module="true" symbol="WatchUi"/>
         <entry id="2" module="true" symbol="globals/Rez"/>
         <entry id="8389124" method="true" symbol="onUpdate"/>
-        <entry field="true" id="19" symbol="pcntFrict"/>
         <entry id="8388771" module="true" object="true" symbol="Drawables"/>
         <entry field="true" id="8389067" symbol="height"/>
-        <entry id="13" module="true" symbol="Menus"/>
+        <entry id="14" module="true" symbol="Menus"/>
         <entry id="6" module="true" symbol="globals/Rez/Layouts"/>
         <entry field="true" id="8389066" symbol="width"/>
-        <entry field="true" id="8389606" symbol="mag"/>
         <entry id="8389122" method="true" symbol="onLayout"/>
-        <entry id="10" object="true" symbol="PPGPilotDelegate"/>
-        <entry field="true" id="16" symbol="parentView"/>
+        <entry id="11" object="true" symbol="PPGPilotDelegate"/>
+        <entry id="8389137" method="true" symbol="compute"/>
+        <entry field="true" id="17" symbol="parentView"/>
         <entry id="7" module="true" symbol="globals/Rez/JsonData"/>
-        <entry field="true" id="25" symbol="xVelocity"/>
         <entry id="3" module="true" symbol="globals/Rez/Drawables"/>
-        <entry id="9" object="true" symbol="PPGPilotView"/>
+        <entry id="10" object="true" symbol="PPGPilotView"/>
         <entry id="8389619" method="true" symbol="onSelect"/>
         <entry id="8388769" module="true" object="true" symbol="Rez"/>
-        <entry id="29" method="true" symbol="timerCallback"/>
-        <entry field="true" id="23" symbol="velocityToPix"/>
+        <entry id="19" method="true" symbol="timerCallback"/>
         <entry id="8390088" module="true" object="true" symbol="JsonData"/>
-        <entry id="11" object="true" symbol="PPGPilotApp"/>
-        <entry field="true" id="14" symbol="LauncherIcon"/>
+        <entry id="12" object="true" symbol="PPGPilotApp"/>
+        <entry field="true" id="15" symbol="LauncherIcon"/>
         <entry id="8388610" symbol="statics"/>
         <entry id="8389123" method="true" symbol="onShow"/>
         <entry id="8388643" module="true" symbol="Sensor"/>
@@ -165,56 +78,50 @@
         <entry id="8388770" module="true" object="true" symbol="Strings"/>
         <entry id="8388702" method="true" symbol="initialize"/>
         <entry id="8389279" method="true" symbol="onStart"/>
-        <entry field="true" id="21" symbol="arrowLen"/>
         <entry id="8388641" module="true" symbol="Math"/>
         <entry id="8389280" method="true" symbol="getInitialView"/>
         <entry id="8389281" method="true" symbol="onStop"/>
         <entry id="8388646" module="true" object="true" symbol="Timer"/>
-        <entry id="12" module="true" symbol="Layouts"/>
-        <entry field="true" id="22" symbol="hitForce"/>
-        <entry field="true" id="28" symbol="yMult"/>
-        <entry field="true" id="24" symbol="dataTimer"/>
+        <entry id="13" module="true" symbol="Layouts"/>
+        <entry field="true" id="18" symbol="dataTimer"/>
         <entry id="5" module="true" symbol="globals/Rez/Fonts"/>
         <entry id="8389125" method="true" symbol="onHide"/>
         <entry id="8388635" module="true" symbol="Application"/>
-        <entry field="true" id="8390079" symbol="y"/>
-        <entry field="true" id="8390078" symbol="x"/>
-        <entry field="true" id="17" symbol="r"/>
     </symbolTable>
     <localVars>
-        <entry arg="true" endPc="268435667" name="dc" stackId="1" startPc="268435479"/>
-        <entry endPc="268436203" name="xArrowTail" stackId="4" startPc="268435827"/>
-        <entry endPc="268436203" name="yArrowTail" stackId="5" startPc="268435827"/>
-        <entry endPc="268436203" name="yArrow" stackId="3" startPc="268435827"/>
-        <entry endPc="268436203" name="xArrow" stackId="2" startPc="268435827"/>
-        <entry arg="true" endPc="268436881" name="dc" stackId="1" startPc="268435672"/>
-        <entry endPc="268437901" name="yAccel" stackId="3" startPc="268436929"/>
-        <entry endPc="268437901" name="xAccel" stackId="2" startPc="268436929"/>
-        <entry endPc="268438113" name="yMag" stackId="5" startPc="268437931"/>
-        <entry endPc="268438113" name="magMagnitude" stackId="6" startPc="268437931"/>
-        <entry endPc="268438113" name="xMag" stackId="4" startPc="268437931"/>
-        <entry endPc="268438132" name="info" stackId="1" startPc="268436885"/>
-        <entry arg="true" endPc="268438313" name="view" stackId="1" startPc="268438280"/>
-        <entry arg="true" endPc="268438364" name="state" stackId="1" startPc="268438359"/>
-        <entry arg="true" endPc="268438369" name="state" stackId="1" startPc="268438364"/>
-        <entry endPc="268438450" name="mainView" stackId="1" startPc="268438373"/>
-        <entry endPc="268438450" name="viewDelegate" stackId="2" startPc="268438373"/>
+        <entry arg="true" endPc="268435503" name="info" stackId="1" startPc="268435492"/>
+        <entry arg="true" endPc="268435644" name="dc" stackId="1" startPc="268435526"/>
+        <entry arg="true" endPc="268435820" name="dc" stackId="1" startPc="268435649"/>
+        <entry endPc="268435857" name="info" stackId="1" startPc="268435824"/>
+        <entry arg="true" endPc="268435924" name="view" stackId="1" startPc="268435891"/>
+        <entry arg="true" endPc="268435975" name="state" stackId="1" startPc="268435970"/>
+        <entry arg="true" endPc="268435980" name="state" stackId="1" startPc="268435975"/>
+        <entry endPc="268436061" name="mainView" stackId="1" startPc="268435984"/>
+        <entry endPc="268436061" name="viewDelegate" stackId="2" startPc="268435984"/>
     </localVars>
     <annotations/>
     <dataEntryOffsetMappings>
         <dataEntry offset="87" parentId="" symbolId="globals" type="module"/>
-        <dataEntry offset="158" parentId="globals" symbolId="Rez" type="module"/>
-        <dataEntry offset="237" parentId="Rez" symbolId="Drawables" type="module"/>
-        <dataEntry offset="276" parentId="Rez" symbolId="Menus" type="module"/>
-        <dataEntry offset="307" parentId="Rez" symbolId="Fonts" type="module"/>
-        <dataEntry offset="338" parentId="Rez" symbolId="Layouts" type="module"/>
-        <dataEntry offset="369" parentId="Rez" symbolId="JsonData" type="module"/>
-        <dataEntry offset="400" parentId="Rez" symbolId="Strings" type="module"/>
-        <dataEntry offset="439" parentId="globals" symbolId="PPGPilotApp" type="class"/>
-        <dataEntry offset="510" parentId="globals" symbolId="PPGPilotDelegate" type="class"/>
-        <dataEntry offset="573" parentId="globals" symbolId="PPGPilotView" type="class"/>
+        <dataEntry offset="166" parentId="globals" symbolId="Rez" type="module"/>
+        <dataEntry offset="245" parentId="Rez" symbolId="Drawables" type="module"/>
+        <dataEntry offset="284" parentId="Rez" symbolId="Menus" type="module"/>
+        <dataEntry offset="315" parentId="Rez" symbolId="Fonts" type="module"/>
+        <dataEntry offset="346" parentId="Rez" symbolId="Layouts" type="module"/>
+        <dataEntry offset="377" parentId="Rez" symbolId="JsonData" type="module"/>
+        <dataEntry offset="408" parentId="Rez" symbolId="Strings" type="module"/>
+        <dataEntry offset="447" parentId="globals" symbolId="MySimpleHRField" type="class"/>
+        <dataEntry offset="502" parentId="globals" symbolId="PPGPilotApp" type="class"/>
+        <dataEntry offset="573" parentId="globals" symbolId="PPGPilotDelegate" type="class"/>
+        <dataEntry offset="636" parentId="globals" symbolId="PPGPilotView" type="class"/>
     </dataEntryOffsetMappings>
     <functions>
+        <functionEntry accessMode="public" name="initialize" parent="MySimpleHRField">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="compute" parent="MySimpleHRField">
+            <param id="info"/>
+            <documentation/>
+        </functionEntry>
         <functionEntry accessMode="public" name="initialize" parent="PPGPilotView">
             <documentation/>
         </functionEntry>
