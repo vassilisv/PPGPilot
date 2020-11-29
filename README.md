@@ -18,3 +18,6 @@
 - Display basic data
 - Activity recording
 - Calculate custom fields
+- Use forecast wind direction and speed before takeoff
+
+- Fix North heading and bearing to home (not working)
