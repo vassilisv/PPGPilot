@@ -14,10 +14,12 @@
 ## TODO
 
 - Notify on takeoff
-- Setup layout
-- Display basic data
 - Activity recording
-- Calculate custom fields
+- Calculate wind speed
+- Calculate time to home
+- Calculate PoNR
 - Use forecast wind direction and speed before takeoff
 
-- Fix North heading and bearing to home (not working)
+- Add options (direction North up)
+- Fix color of lines (not visible?)
+- Fix color of notifications (see example)

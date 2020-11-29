@@ -21,6 +21,7 @@ class PPGPilotView extends WatchUi.View {
 	const TITLE_FONT_SIZE = Graphics.FONT_XTINY;
 	const INFO_RADIUS = 0.6;
 	const TITLE_TO_INFO_SPACING = 0.4;
+	const relativeDirection = false;
     var dataTimer;
     var width;
     var height;
@@ -120,7 +121,10 @@ class PPGPilotView extends WatchUi.View {
         	drawInfoField(dc, 180, "HOME", homeDist.format("%4.1f"));
         	
         	// North heading
-        	var northAngle = Math.toDegrees(-sensorInfo.heading);
+        	var northAngle = Math.toDegrees(sensorInfo.heading);
+        	if (relativeDirection) {
+        		northAngle = -northAngle;
+        	}
         	drawDirection(dc, northAngle, Graphics.COLOR_ORANGE, 0);
         	
  			// Wind heading
@@ -129,7 +133,13 @@ class PPGPilotView extends WatchUi.View {
         	drawDirection(dc, windAngle, Graphics.COLOR_BLUE, 0); 
  
  			// Home heading
-        	drawDirection(dc, Math.toDegrees(sensorInfo.heading)-homeBearing, Graphics.COLOR_GREEN, 0); 
+ 			var homeHeading;
+ 			if (relativeDirection) {
+ 				homeHeading = -(Math.toDegrees(sensorInfo.heading)-homeBearing);
+ 			} else {
+ 				homeHeading = homeBearing;
+ 			}
+        	drawDirection(dc, homeHeading, Graphics.COLOR_GREEN, 0); 
         	
         	// Fuel gauge
         	var fuelLevel = 0.7;
@@ -244,6 +254,7 @@ class PPGPilotView extends WatchUi.View {
 //			homeBearing = posBearing(loc1, loc2);
 		    if (sensorInfo != null) {
 		    	System.println("Bearing/Disr: " + homeBearing + ", " + homeDistance);
+		    	System.println("Heading: " + Math.toDegrees(sensorInfo.heading));
 		    } 
 		}
 				
