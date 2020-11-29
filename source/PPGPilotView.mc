@@ -129,7 +129,7 @@ class PPGPilotView extends WatchUi.View {
         	drawDirection(dc, windAngle, Graphics.COLOR_BLUE, 0); 
  
  			// Home heading
-        	drawDirection(dc, homeBearing, Graphics.COLOR_GREEN, 0); 
+        	drawDirection(dc, Math.toDegrees(sensorInfo.heading)-homeBearing, Graphics.COLOR_GREEN, 0); 
         	
         	// Fuel gauge
         	var fuelLevel = 0.7;
@@ -217,10 +217,34 @@ class PPGPilotView extends WatchUi.View {
 			}
 			
 			// Calculate home distance
-		    var res = heaversine(posInfo.position, homePosInfo.position);
-		    homeDistance = res[0];
-		    homeBearing = sensorInfo.heading-res[1];
-			 
+		    homeDistance = posDistance(posInfo.position, homePosInfo.position);
+		    homeBearing = posBearing(posInfo.position, homePosInfo.position);	
+//		    var loc1 = new Position.Location(
+//			    {
+//			        :latitude => 29.745017, 
+//			        :longitude => -95.769865,
+//			        :format => :degrees
+//			    }
+//			);
+//		    var loc2 = new Position.Location( // 0
+//			    {
+//			        :latitude => 29.746901, 
+//			        :longitude => -95.769875,
+//			        :format => :degrees
+//			    }
+//			);
+////		    var loc2 = new Position.Location( // 90
+////			    {
+////			        :latitude => 29.745171,
+////			        :longitude => -95.768564,
+////			        :format => :degrees
+////			    }
+////			);
+//			homeDistance = posDistance(loc1, loc2);
+//			homeBearing = posBearing(loc1, loc2);
+		    if (sensorInfo != null) {
+		    	System.println("Bearing/Disr: " + homeBearing + ", " + homeDistance);
+		    } 
 		}
 				
 	    System.println("Position acc: " + posInfo.accuracy); 
@@ -235,27 +259,32 @@ class PPGPilotView extends WatchUi.View {
 		return new PixelPos(x, y);
 	}
 	
-	// Calculate distance and bearing between two positions
+	// Calculate distance between two positions
 	// Ref: https://www.movable-type.co.uk/scripts/latlong.html
-	function heaversine(pos1, pos2) {
+	function posDistance(pos1, pos2) {
 		// Distance
 		var R = 6371e3; 
-		var pos1rad = pos1.toDegrees(); // lat, lon
-		var pos2rad = pos2.toDegrees();
-		var phi1 = pos1rad[0] * Math.PI/180;
-		var phi2 = pos2rad[0] * Math.PI/180;
-		var dphi = (pos2rad[0]-pos1rad[0]) * Math.PI/180;
-		var dlam = (pos2rad[1]-pos1rad[1]) * Math.PI/180;
+		var pos1deg = pos1.toDegrees(); // lat, lon
+		var pos2deg = pos2.toDegrees();
+		var phi1 = pos1deg[0] * Math.PI/180;
+		var phi2 = pos2deg[0] * Math.PI/180;
+		var dphi = (pos2deg[0]-pos1deg[0]) * Math.PI/180;
+		var dlam = (pos2deg[1]-pos1deg[1]) * Math.PI/180;
 		var a = Math.sin(dphi/2) * Math.sin(dphi/2) + Math.cos(phi1) * Math.cos(phi2) * Math.sin(dlam/2) * Math.sin(dlam/2);
 		var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 		var dist = R * c;
-		// Bearing
+		return dist;
+	}
+	
+	// Calculate bearing between two positions
+	// Ref: https://www.movable-type.co.uk/scripts/latlong.html
+	function posBearing(pos1, pos2) {
+		var pos1rad = pos1.toRadians(); // lat, lon
+		var pos2rad = pos2.toRadians();
 		var theta = Math.atan2(Math.cos(pos1rad[0]) * Math.sin(pos2rad[0]) - Math.sin(pos1rad[0]) * Math.cos(pos2rad[0]) * Math.cos(pos2rad[1]-pos1rad[1]), Math.sin(pos2rad[1]-pos1rad[1]) * Math.cos(pos2rad[0]));
-		var bearing = ((theta*180/Math.PI) + 180).toLong() % 360;
+		var bearing = (90 - (theta*180/Math.PI)).toLong() % 360;
 		//var bearing = Math.toDegrees(theta);
-		System.println("Dist: " + dist);
-		System.println("Bearing: " + bearing);
-		return [dist, bearing];
+		return bearing;
 	}
 	
 }
