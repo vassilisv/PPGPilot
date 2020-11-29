@@ -22,18 +22,24 @@ class PPGPilotView extends WatchUi.View {
 	const INFO_RADIUS = 0.6;
 	const TITLE_TO_INFO_SPACING = 0.4;
 	const relativeDirection = false;
-    var dataTimer;
-    var width;
-    var height;
-    var posInfo;
-    var sensorInfo;
-    var notification;
-    var gotGPSFix;
-    var infoFontHeight;
-    var titleFontHeight;
-    var homePosInfo;
-    var homeDistance;
-    var homeBearing;
+    var dataTimer; // as per API
+    var width; // pixels
+    var height; // pixels
+    var posInfo; // as per API
+    var sensorInfo; // as per API
+    var notification; // object
+    var gotGPSFix; // bool
+    var infoFontHeight; // pixels
+    var titleFontHeight; // pixels
+    var windEstimator; // object
+    var homePosInfo; // as per API
+    var homeDistance = 0; // meters
+    var homeBearing = 0; // degrees from North
+    var windSpeed = 0; // meters / second
+    var windDirection = 0; // degrees from North
+    var currentHeading = 0; // degrees from North
+    var currentAltitude = 0; // meters
+    var currentSpeed = 0; // meters / second
     
     class PixelPos {
     	var x;
@@ -72,14 +78,16 @@ class PPGPilotView extends WatchUi.View {
 
     // Load your resources here
     function onLayout(dc) {
-    	// Setup timer
-        dataTimer = new Timer.Timer();
-        dataTimer.start(method(:timerCallback), 200, true);
         // Setup dims
         width = dc.getWidth(); 
         height = dc.getHeight();
         infoFontHeight = dc.getFontHeight(INFO_FONT_SIZE);
         titleFontHeight = dc.getFontHeight(TITLE_FONT_SIZE);
+        // Setup wind estimator
+        windEstimator = new WindEstimator(10, 3);
+    	// Setup timer
+        dataTimer = new Timer.Timer();
+        dataTimer.start(method(:timerCallback), 200, true);
         // Setup position updates
         gotGPSFix = false;
         homePosInfo = null;
@@ -104,16 +112,16 @@ class PPGPilotView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         if (posInfo != null) {        	
         	// Ground speed
-        	var groundSpeed = posInfo.speed * MPS2MPH;
+        	var groundSpeed = currentSpeed * MPS2MPH;
         	drawInfoField(dc, 270, "GSPD", groundSpeed.format("%4.1f"));
 
 			// Altitude (baro)
-        	var alt = sensorInfo.altitude * M2F;
+        	var alt = currentAltitude * M2F;
         	drawInfoField(dc, 0, "ALT", alt.format("%4d"));
 
 			// Wind speed
-        	var windSpeed = 10 * MPS2MPH;
-        	drawInfoField(dc, 90, "WSPD", windSpeed.format("%4.1f"));
+        	var wSpd = windSpeed * MPS2MPH;
+        	drawInfoField(dc, 90, "WSPD", wSpd.format("%4.1f"));
 
 			// Time/dist to home (TBD)
 			// TODO: Implement, alternate between distance to home and time to home
@@ -121,21 +129,23 @@ class PPGPilotView extends WatchUi.View {
         	drawInfoField(dc, 180, "HOME", homeDist.format("%4.1f"));
         	
         	// North heading
-        	var northAngle = Math.toDegrees(sensorInfo.heading);
+        	var northAngle = currentHeading;
         	if (relativeDirection) {
         		northAngle = -northAngle;
         	}
-        	drawDirection(dc, northAngle, Graphics.COLOR_ORANGE, 0);
+        	drawDirection(dc, northAngle, Graphics.COLOR_RED, 0);
         	
  			// Wind heading
- 			// TODO: Implement
-        	var windAngle = 150;
+        	var windAngle = windDirection;
+        	if (relativeDirection) {
+        		windAngle = -windAngle;
+        	}
         	drawDirection(dc, windAngle, Graphics.COLOR_BLUE, 0); 
  
  			// Home heading
  			var homeHeading;
  			if (relativeDirection) {
- 				homeHeading = -(Math.toDegrees(sensorInfo.heading)-homeBearing);
+ 				homeHeading = -(currentHeading-homeBearing);
  			} else {
  				homeHeading = homeBearing;
  			}
@@ -199,8 +209,9 @@ class PPGPilotView extends WatchUi.View {
 
     function timerCallback() {
         sensorInfo = Sensor.getInfo();
+        currentHeading = Math.toDegrees(sensorInfo.heading);
+        currentAltitude = sensorInfo.altitude;
         WatchUi.requestUpdate();
-        //System.println("Sensor, H: " + sensorInfo.heading + " A:" + sensorInfo.altitude);
     }
 
     // Called when this View is removed from the screen. Save the
@@ -211,10 +222,12 @@ class PPGPilotView extends WatchUi.View {
     // Called on position updates
 	function onPosition(info) {
 		posInfo = info;
+		// Check for good accuracy
 		if (posInfo.accuracy < 2) {
 			notification = new Notification("Lost GPS Fix", true, 10);
 			gotGPSFix = false;
-		} else {
+		} else if (sensorInfo != null) {
+			// Set home and notify
 			if (!gotGPSFix) {
 				gotGPSFix = true;
 				// Set home if not done already
@@ -225,43 +238,26 @@ class PPGPilotView extends WatchUi.View {
 					notification = new Notification("Got GPS Fix", false, 10);
 				}
 			}
-			
-			// Calculate home distance
+			// Update speed
+			currentSpeed = posInfo.speed;
+			// Calculate home distance and bearing
 		    homeDistance = posDistance(posInfo.position, homePosInfo.position);
-		    homeBearing = posBearing(posInfo.position, homePosInfo.position);	
-//		    var loc1 = new Position.Location(
-//			    {
-//			        :latitude => 29.745017, 
-//			        :longitude => -95.769865,
-//			        :format => :degrees
-//			    }
-//			);
-//		    var loc2 = new Position.Location( // 0
-//			    {
-//			        :latitude => 29.746901, 
-//			        :longitude => -95.769875,
-//			        :format => :degrees
-//			    }
-//			);
-////		    var loc2 = new Position.Location( // 90
-////			    {
-////			        :latitude => 29.745171,
-////			        :longitude => -95.768564,
-////			        :format => :degrees
-////			    }
-////			);
-//			homeDistance = posDistance(loc1, loc2);
-//			homeBearing = posBearing(loc1, loc2);
-		    if (sensorInfo != null) {
-		    	System.println("Bearing/Disr: " + homeBearing + ", " + homeDistance);
-		    	System.println("Heading: " + Math.toDegrees(sensorInfo.heading));
-		    } 
+		    homeBearing = posBearing(posInfo.position, homePosInfo.position);
+		    System.println("Bearing/Disr: " + homeBearing + ", " + homeDistance);
+		    System.println("Heading: " + currentHeading);
+		    // Calculate wind speed
+		    var windEstimate = windEstimator.update(currentSpeed, currentHeading);
+		    //var windEstimate = windEstimator.update(10, 160);
+		    windSpeed = windEstimate[0];
+		    windDirection = windEstimate[1];
+		    System.println("Wind speed/direction: " + windSpeed + " / " + windDirection);
+		} else {
+			System.println("WARNING: Waiting for sensor data, can't process position update");
 		}
-				
 	    System.println("Position acc: " + posInfo.accuracy); 
 	}
 	
-	// Convert polar (angle in degrees, radius as a fraction) to cartesian (x, y in pixels)
+	// Convert polar (angle in degrees, radius as a fraction of visible screen) to cartesian (x, y in pixels)
 	function polar2cart(angle, radius) {
 		var angleRad = Math.PI/2 - Math.toRadians(angle);
 		var radiusPix = radius*height/2;
@@ -297,5 +293,4 @@ class PPGPilotView extends WatchUi.View {
 		//var bearing = Math.toDegrees(theta);
 		return bearing;
 	}
-	
 }
