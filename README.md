@@ -21,3 +21,4 @@
 - Add options (direction North up)
 - Fix color of lines (not visible?)
 - Fix color of notifications (see example)
+- Option to display airspeed

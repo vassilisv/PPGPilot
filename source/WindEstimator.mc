@@ -73,12 +73,18 @@ class WindEstimator {
 		var polarBinIndex = Math.floor(headingPos / self.degreesPerPolarBin).toNumber() % self.numPolarBins;
 		// Update bin
 		self.polarBins[polarBinIndex].update(groundSpeed);
-		// Fit best circle
-		var xyR = fitCircle();
-		// Calculate wind speed and direction from circle center
-		var windSpeed = Math.sqrt(xyR[0]*xyR[0] + xyR[1]*xyR[1]);
-		var windDirection = Math.toDegrees(-Math.atan2(xyR[1], xyR[0])+1.5*Math.PI); // from coordinate angle to compass angle, also rotate by 180deg
-		return [windSpeed, windDirection];			
+		try {
+			// Fit best circle
+			var xyR = fitCircle();
+			// Calculate wind speed and direction from circle center
+			var windSpeed = Math.sqrt(xyR[0]*xyR[0] + xyR[1]*xyR[1]);
+			var windDirection = Math.toDegrees(-Math.atan2(xyR[1], xyR[0])+1.5*Math.PI); // from coordinate angle to compass angle, also rotate by 180deg
+			var airSpeed = xyR[2];
+			return [windSpeed, windDirection, airSpeed];
+		} catch (ex) {
+			System.print("ERROR: Wind update failed with: " + ex);
+			return [null, null, null];
+		}			
 	}
 	
 	// Fit best circle given points using the TaubinNewton method

@@ -1,9 +1,3 @@
-//
-// Copyright 2015-2016 by Garmin Ltd. or its subsidiaries.
-// Subject to Garmin SDK License Agreement and Wearables
-// Application Developer Agreement.
-//
-
 using Toybox.WatchUi;
 using Toybox.Graphics;
 using Toybox.Sensor;
@@ -39,7 +33,8 @@ class PPGPilotView extends WatchUi.View {
     var windDirection = 0; // degrees from North
     var currentHeading = 0; // degrees from North
     var currentAltitude = 0; // meters
-    var currentSpeed = 0; // meters / second
+    var currentGroundSpeed = 0; // meters / second
+    var currentAirSpeed = 0; // meters / second
     
     class PixelPos {
     	var x;
@@ -112,7 +107,7 @@ class PPGPilotView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         if (posInfo != null) {        	
         	// Ground speed
-        	var groundSpeed = currentSpeed * MPS2MPH;
+        	var groundSpeed = currentGroundSpeed * MPS2MPH;
         	drawInfoField(dc, 270, "GSPD", groundSpeed.format("%4.1f"));
 
 			// Altitude (baro)
@@ -140,7 +135,7 @@ class PPGPilotView extends WatchUi.View {
         	if (relativeDirection) {
         		windAngle = -windAngle;
         	}
-        	drawDirection(dc, windAngle, Graphics.COLOR_BLUE, 0); 
+        	drawDirection(dc, windAngle, Graphics.COLOR_YELLOW, 0); 
  
  			// Home heading
  			var homeHeading;
@@ -239,18 +234,20 @@ class PPGPilotView extends WatchUi.View {
 				}
 			}
 			// Update speed
-			currentSpeed = posInfo.speed;
+			currentGroundSpeed = posInfo.speed;
 			// Calculate home distance and bearing
 		    homeDistance = posDistance(posInfo.position, homePosInfo.position);
 		    homeBearing = posBearing(posInfo.position, homePosInfo.position);
 		    System.println("Bearing/Disr: " + homeBearing + ", " + homeDistance);
 		    System.println("Heading: " + currentHeading);
 		    // Calculate wind speed
-		    var windEstimate = windEstimator.update(currentSpeed, currentHeading);
-		    //var windEstimate = windEstimator.update(10, 160);
-		    windSpeed = windEstimate[0];
-		    windDirection = windEstimate[1];
-		    System.println("Wind speed/direction: " + windSpeed + " / " + windDirection);
+		    var windEstimate = windEstimator.update(currentGroundSpeed, currentHeading);
+		    if (windEstimate[0] != null && windEstimate[1] != null) {
+			    windSpeed = windEstimate[0];
+			    windDirection = windEstimate[1];
+			    currentAirSpeed = windEstimate[2];
+			    System.println("Wind speed/direction/airspeed: " + windSpeed + " / " + windDirection + " / " + currentAirSpeed);
+			}
 		} else {
 			System.println("WARNING: Waiting for sensor data, can't process position update");
 		}
