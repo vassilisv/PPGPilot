@@ -8,7 +8,7 @@ class WindEstimator {
 	var degreesPerPolarBin;
 
 	class PolarBin {
-		const INIT_SPEED = 9.4f; // 21 mph
+		const INIT_SPEED = 10.3f; // 23 mph
 		const MIN_SPEED = 1.56f; // 3.5 mph
 		var speeds;
 		var speedIndex;
