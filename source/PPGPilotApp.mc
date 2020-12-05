@@ -1,6 +1,8 @@
 using Toybox.Application;
 
 class PPGPilotApp extends Application.AppBase {
+	var mainView;
+	var viewDelegate;
 
     function initialize() {
         AppBase.initialize();
@@ -12,12 +14,15 @@ class PPGPilotApp extends Application.AppBase {
 
     // onStop() is called when your application is exiting
     function onStop(state) {
+    	if (mainView != null) {
+    		mainView.onStop();
+    	}
     }
 
     // Return the initial view of your application here
     function getInitialView() {
-        var mainView = new PPGPilotView();
-        var viewDelegate = new PPGPilotDelegate( mainView );
+        mainView = new PPGPilotView();
+        viewDelegate = new PPGPilotDelegate( mainView );
         return [mainView, viewDelegate];
     }
 

@@ -15,6 +15,7 @@ class PPGPilotView extends WatchUi.View {
 	const TITLE_FONT_SIZE = Graphics.FONT_XTINY;
 	const INFO_RADIUS = 0.6;
 	const TITLE_TO_INFO_SPACING = 0.4;
+	const FLYING_MIN_SPEED = 3.57f; // 8 mph
 	const relativeDirection = false;
     var dataTimer; // as per API
     var width; // pixels
@@ -35,6 +36,8 @@ class PPGPilotView extends WatchUi.View {
     var currentAltitude = 0; // meters
     var currentGroundSpeed = 0; // meters / second
     var currentAirSpeed = 0; // meters / second
+    var flying = false;
+    var session = null;
     
     class PixelPos {
     	var x;
@@ -248,6 +251,8 @@ class PPGPilotView extends WatchUi.View {
 			    currentAirSpeed = windEstimate[2];
 			    System.println("Wind speed/direction/airspeed: " + windSpeed + " / " + windDirection + " / " + currentAirSpeed);
 			}
+			// Update flying state
+			updateFlyingState();
 		} else {
 			System.println("WARNING: Waiting for sensor data, can't process position update");
 		}
@@ -289,5 +294,47 @@ class PPGPilotView extends WatchUi.View {
 		var bearing = (90 - (theta*180/Math.PI)).toLong() % 360;
 		//var bearing = Math.toDegrees(theta);
 		return bearing;
+	}
+	
+	// Check if we are flying 
+	function updateFlyingState() {
+		// Nothing to do if already flying
+		if (!flying) {
+			// Check speed to detect if flying (TODO: average speed)
+			if (currentGroundSpeed > FLYING_MIN_SPEED) {
+				flying = true;
+				startSession();
+		        notification = new Notification("Flying", false, 5);
+		    
+		    }
+		}				
+	}
+	
+	function startSession() {
+		// Start session
+	    if ((session == null) || (session.isRecording() == false)) {
+	    	session = ActivityRecording.createSession({          // set up recording session
+	             :name=>"PPG",                              // set session name
+	             :sport=>ActivityRecording.SPORT_GENERIC,       // set sport type
+	             :subSport=>ActivityRecording.SUB_SPORT_GENERIC // set sub sport type
+	      	});
+	  		session.start();                                     // call start session
+	    	System.println("Activity recording started");
+	    }
+	}
+	
+	function stopSession() {
+		// Stop recording session if already running
+    	if ((session != null) && session.isRecording()) {
+         	session.stop();                                      // stop the session
+          	session.save();                                      // save the session
+          	session = null;                                      // set session control variable to null
+          	System.println("Activity recording stopped");
+      	}	
+	}
+	
+	function onStop() {
+		stopSession();
+      	System.println("App stopped");		
 	}
 }

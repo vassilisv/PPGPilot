@@ -1,4 +1,6 @@
 using Toybox.WatchUi;
+using Toybox.ActivityRecording;
+using Toybox.FitContributor;
 
 class PPGPilotDelegate extends WatchUi.BehaviorDelegate {
     var parentView;
@@ -9,5 +11,7 @@ class PPGPilotDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function onSelect() {
+		parentView.startSession();
+		return true;   
     }
 }
