@@ -1,3 +1,10 @@
 <resources>
     <string id="AppName">PPGPilot</string>
+    <string id="AirspeedFieldName">Airspeed</string>
+    <string id="AirspeedFieldUnits">m/s</string>
+	<fitContributions>
+		<fitField id="0" displayInChart="true" sortOrder = "0" precision="1"
+		chartTitle="@Strings.AirspeedFieldName" dataLabel="@Strings.AirspeedFieldName"
+		unitLabel="@Strings.AirspeedFieldUnits" fillColor="#FF0000" />
+	</fitContributions>  
 </resources>

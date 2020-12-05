@@ -6,6 +6,8 @@ using Toybox.Math;
 using Toybox.Position;
 using Toybox.System;
 using Toybox.Time;
+using Toybox.ActivityRecording;
+using Toybox.FitContributor;
 
 class PPGPilotView extends WatchUi.View {
 	const MPS2MPH = 2.23694;
@@ -36,6 +38,7 @@ class PPGPilotView extends WatchUi.View {
     var currentAltitude = 0; // meters
     var currentGroundSpeed = 0; // meters / second
     var currentAirSpeed = 0; // meters / second
+    var windSpeedField = null;
     var flying = false;
     var session = null;
     
@@ -158,7 +161,11 @@ class PPGPilotView extends WatchUi.View {
         	dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
         	dc.setPenWidth(1);
         	dc.drawRectangle(fuelX, fuelY, fuelGaugeWidth, fuelGaugeHeight);
-        	dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
+        	if (flying) {
+        		dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
+        	} else {
+        		dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+        	}
         	dc.fillRectangle(fuelX, fuelY, fuelGaugeWidth, fuelGaugeHeight);            	            	   
 		}	        
         
@@ -253,6 +260,10 @@ class PPGPilotView extends WatchUi.View {
 			}
 			// Update flying state
 			updateFlyingState();
+			// Update custom fields
+			if (session != null) {
+				windSpeedField.setData(windSpeed);
+			}
 		} else {
 			System.println("WARNING: Waiting for sensor data, can't process position update");
 		}
@@ -318,6 +329,8 @@ class PPGPilotView extends WatchUi.View {
 	             :sport=>ActivityRecording.SPORT_GENERIC,       // set sport type
 	             :subSport=>ActivityRecording.SUB_SPORT_GENERIC // set sub sport type
 	      	});
+	      	windSpeedField = session.createField("Windspeed", 0, FitContributor.DATA_TYPE_FLOAT, 
+	      		{:mesgType=>FitContributor.MESG_TYPE_RECORD, :units=>"mph"});
 	  		session.start();                                     // call start session
 	    	System.println("Activity recording started");
 	    }
