@@ -13,7 +13,6 @@
  
 ## TODO
 
-- Calculate time to home
 - Calculate PoNR
 - Use forecast wind direction and speed before takeoff
 - Add options (direction North up)

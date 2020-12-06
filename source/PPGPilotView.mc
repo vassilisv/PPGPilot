@@ -146,7 +146,6 @@ class PPGPilotView extends WatchUi.View {
         	}
         	// Advance to next field in the loop if time
         	var timeNow = Time.now().value();
-        	System.println(timeNow);
         	if (timeNow >= homeFieldLoopNextUpdate) {
         		homeFieldLoopIdx = (homeFieldLoopIdx+1)%homeFieldLoopSize;
         		homeFieldLoopNextUpdate = timeNow + HOME_FIELD_LOOP_PERIOD;
