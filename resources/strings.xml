@@ -1,10 +1,40 @@
 <resources>
     <string id="AppName">PPGPilot</string>
-    <string id="AirspeedFieldName">Airspeed</string>
-    <string id="AirspeedFieldUnits">m/s</string>
+    <string id="Field0Name">Wind Speed</string>
+    <string id="Field0Units">m/s</string>
+    <string id="Field1Name">Wind Direction</string>
+    <string id="Field1Units">degrees</string>
+    <string id="Field2Name">Air Speed</string>
+    <string id="Field2Units">m/s</string>
+    <string id="Field3Name">Home Distance</string>
+    <string id="Field3Units">m</string>
+    <string id="Field4Name">Home Direction</string>
+    <string id="Field4Units">degrees</string>
+    <string id="Field5Name">Time to home</string>
+    <string id="Field5Units">s</string>
+    <string id="Field6Name">Time to PNR</string>
+    <string id="Field6Units">s</string>
 	<fitContributions>
 		<fitField id="0" displayInChart="true" sortOrder = "0" precision="1"
-		chartTitle="@Strings.AirspeedFieldName" dataLabel="@Strings.AirspeedFieldName"
-		unitLabel="@Strings.AirspeedFieldUnits" fillColor="#FF0000" />
+		chartTitle="@Strings.Field0Name" dataLabel="@Strings.Field0Name"
+		unitLabel="@Strings.Field0Units" fillColor="#FF0000" />
+		<fitField id="1" displayInChart="true" sortOrder = "0" precision="1"
+		chartTitle="@Strings.Field1Name" dataLabel="@Strings.Field1Name"
+		unitLabel="@Strings.Field1Units" fillColor="#FF0000" />
+		<fitField id="2" displayInChart="true" sortOrder = "0" precision="1"
+		chartTitle="@Strings.Field2Name" dataLabel="@Strings.Field2Name"
+		unitLabel="@Strings.Field2Units" fillColor="#FF0000" />
+		<fitField id="3" displayInChart="true" sortOrder = "0" precision="1"
+		chartTitle="@Strings.Field3Name" dataLabel="@Strings.Field3Name"
+		unitLabel="@Strings.Field3Units" fillColor="#FF0000" />
+		<fitField id="4" displayInChart="true" sortOrder = "0" precision="1"
+		chartTitle="@Strings.Field4Name" dataLabel="@Strings.Field4Name"
+		unitLabel="@Strings.Field4Units" fillColor="#FF0000" />
+		<fitField id="5" displayInChart="true" sortOrder = "0" precision="1"
+		chartTitle="@Strings.Field5Name" dataLabel="@Strings.Field5Name"
+		unitLabel="@Strings.Field5Units" fillColor="#FF0000" />
+		<fitField id="6" displayInChart="true" sortOrder = "0" precision="1"
+		chartTitle="@Strings.Field6Name" dataLabel="@Strings.Field6Name"
+		unitLabel="@Strings.Field6Units" fillColor="#FF0000" />
 	</fitContributions>  
 </resources>

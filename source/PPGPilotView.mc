@@ -19,7 +19,8 @@ class PPGPilotView extends WatchUi.View {
 	const TITLE_TO_INFO_SPACING = 0.4;
 	const FLYING_MIN_SPEED = 3.57f; // 8 mph
 	const HOME_FIELD_LOOP_PERIOD = 3; // sec
-	const relativeDirection = false;
+	const RELATIVE_DIRECTION = false;
+	const MAX_FLIGHT_DURATION = 60*60; // sec
     var dataTimer; // as per API
     var width; // pixels
     var height; // pixels
@@ -47,11 +48,15 @@ class PPGPilotView extends WatchUi.View {
 	var homeDistanceField = null;
 	var homeDirectionField = null;	  
 	var timeToHomeField = null;	
+	var timeToPointOfNoReturnField = null;
     var flying = false;
     var session = null;
     var homeFieldLoopSize = 2;
     var homeFieldLoopIdx = 0;
     var homeFieldLoopNextUpdate = 0;
+    var takeoffTime = 0; // sec
+    var landTime = 0; // sec
+    var timeToPointOfNoReturn = 0; // sec
     
     class PixelPos {
     	var x;
@@ -107,7 +112,7 @@ class PPGPilotView extends WatchUi.View {
         homeBearing = 0;
         Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPosition));
         // Display wellcome notification
-        notification = new Notification("Waiting for GPS", true, 0);
+        notification = new Notification("No GPS", true, 0);
     }
 
     // Restore the state of the app and prepare the view to be shown
@@ -122,7 +127,9 @@ class PPGPilotView extends WatchUi.View {
         
 		// Draw text
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        if (posInfo != null) {        	
+        if (posInfo != null) {
+        	var timeNow = Time.now().value();
+        	        	
         	// Ground speed
         	var groundSpeed = currentGroundSpeed * MPS2MPH;
         	drawInfoField(dc, 270, "GSPD", groundSpeed.format("%4.1f"));
@@ -138,14 +145,17 @@ class PPGPilotView extends WatchUi.View {
 			// Time/dist to home (TBD)
 			if (homeFieldLoopIdx == 0) {
 				var homeDist = homeDistance*M2MILE;
-        		drawInfoField(dc, 180, "D-HOME", homeDist.format("%4.1f"));
+        		drawInfoField(dc, 180, "HOME", homeDist.format("%4.1f"));
         	} else if (homeFieldLoopIdx == 1) {
-				var hours = Math.floor(timeToHome / (60*60));
-				var mins = Math.floor((timeToHome - hours*(60*60)) / 60);
-        		drawInfoField(dc, 180, "T-HOME", hours.format("%02d") + ":" + mins.format("%02d"));
+        		if (flying) {
+	        		var minsFlying = Math.round((timeNow - takeoffTime)/60);
+					var minsToHome = Math.round(timeToHome / 60);
+	        		drawInfoField(dc, 180, "TIME", minsFlying.format("%02d") + "/" + minsToHome.format("%02d"));
+	        	} else {
+	        		drawInfoField(dc, 180, "TIME", "--/--");
+	        	}
         	}
         	// Advance to next field in the loop if time
-        	var timeNow = Time.now().value();
         	if (timeNow >= homeFieldLoopNextUpdate) {
         		homeFieldLoopIdx = (homeFieldLoopIdx+1)%homeFieldLoopSize;
         		homeFieldLoopNextUpdate = timeNow + HOME_FIELD_LOOP_PERIOD;
@@ -153,21 +163,21 @@ class PPGPilotView extends WatchUi.View {
         	
         	// North heading
         	var northAngle = currentHeading;
-        	if (relativeDirection) {
+        	if (RELATIVE_DIRECTION) {
         		northAngle = -northAngle;
         	}
         	drawDirection(dc, northAngle, Graphics.COLOR_RED, 0);
         	
  			// Wind heading
         	var windAngle = windDirection;
-        	if (relativeDirection) {
+        	if (RELATIVE_DIRECTION) {
         		windAngle = -windAngle;
         	}
         	drawDirection(dc, windAngle, Graphics.COLOR_YELLOW, 0); 
  
  			// Home heading
  			var homeHeading;
- 			if (relativeDirection) {
+ 			if (RELATIVE_DIRECTION) {
  				homeHeading = -(currentHeading-homeBearing);
  			} else {
  				homeHeading = homeBearing;
@@ -176,33 +186,45 @@ class PPGPilotView extends WatchUi.View {
         	
         	// Fuel gauge
         	var fuelLevel = 0.7;
-        	var fuelGaugeWidth = 0.25*width/2;
+        	var fuelGaugeWidth = 0.30*width/2;
         	var fuelGaugeHeight = 0.4*height/2;
         	var fuelX = width/2-fuelGaugeWidth/2;
         	var fuelY = height/2-fuelGaugeHeight/2;
-        	dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        	dc.setPenWidth(1);
-        	dc.drawRectangle(fuelX, fuelY, fuelGaugeWidth, fuelGaugeHeight);
-        	if (flying) {
-        		dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
-        	} else {
-        		dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+        	var fuelGaugeHeightRemaining = fuelGaugeHeight * timeToPointOfNoReturn/(60*60);
+        	if (fuelGaugeHeightRemaining > fuelGaugeHeight) {
+        		fuelGaugeHeightRemaining = fuelGaugeHeight;
+        	} else if (fuelGaugeHeightRemaining < 0) {
+        		fuelGaugeHeightRemaining = 0;
         	}
-        	dc.fillRectangle(fuelX, fuelY, fuelGaugeWidth, fuelGaugeHeight);            	            	   
+        	if (!flying) {
+        		dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+        		dc.fillRectangle(fuelX, fuelY, fuelGaugeWidth, fuelGaugeHeight);	
+        	} else {   		      
+	        	if (timeToPointOfNoReturn < 5*60) {
+	        		dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+	        	} else if (timeToPointOfNoReturn < 15*60) {
+	        		dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
+	        	} else {
+	        		dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+	        	}
+	        	dc.fillRectangle(fuelX, fuelY, fuelGaugeWidth, fuelGaugeHeight);
+	        	dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
+	        	dc.fillRectangle(fuelX, fuelY+fuelGaugeHeight-fuelGaugeHeightRemaining, fuelGaugeWidth, fuelGaugeHeightRemaining);    
+	        }        	            	   
 		}	        
         
         // Draw any notifications
         if (notification != null) {
         	// Draw it
+        	dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+			dc.fillRectangle(0, 0, width, 0.35*height);
         	if (notification.warn) {
         		dc.setColor(Graphics.COLOR_ORANGE, Graphics.COLOR_TRANSPARENT);
         	} else {
-        		dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
+        		dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
         	}
-			dc.fillRectangle(0, 0, width, 0.25*height);
-			dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-			var pos = polar2cart(0, 0.75);
-			dc.drawText(pos.x,  pos.y, Graphics.FONT_SYSTEM_MEDIUM, notification.msg, Graphics.TEXT_JUSTIFY_VCENTER | Graphics.TEXT_JUSTIFY_CENTER);
+			var pos = polar2cart(0, 0.65);
+			dc.drawText(pos.x,  pos.y, Graphics.FONT_SYSTEM_LARGE, notification.msg, Graphics.TEXT_JUSTIFY_VCENTER | Graphics.TEXT_JUSTIFY_CENTER);
 			
         	// If expired delete it
         	if (notification.isExpired()) {
@@ -251,7 +273,7 @@ class PPGPilotView extends WatchUi.View {
 		posInfo = info;
 		// Check for good accuracy
 		if (posInfo.accuracy < 2) {
-			notification = new Notification("Lost GPS Fix", true, 10);
+			notification = new Notification("No GPS", true, 10);
 			gotGPSFix = false;
 		} else if (sensorInfo != null) {
 			// Set home and notify
@@ -262,7 +284,7 @@ class PPGPilotView extends WatchUi.View {
 					homePosInfo = info;
 					notification = new Notification("Home Set", false, 10);
 				} else {
-					notification = new Notification("Got GPS Fix", false, 10);
+					notification = new Notification("Got GPS", false, 10);
 				}
 			}
 			// Update speed
@@ -292,6 +314,7 @@ class PPGPilotView extends WatchUi.View {
 				homeDistanceField.setData(homeDistance);
 				homeDirectionField.setData(homeBearing);
 				timeToHomeField.setData(timeToHome);
+				timeToPointOfNoReturnField.setData(timeToPointOfNoReturn);
 			}
 		} else {
 			System.println("WARNING: Waiting for sensor data, can't process position update");
@@ -332,7 +355,6 @@ class PPGPilotView extends WatchUi.View {
 		var pos2rad = pos2.toRadians();
 		var theta = Math.atan2(Math.cos(pos1rad[0]) * Math.sin(pos2rad[0]) - Math.sin(pos1rad[0]) * Math.cos(pos2rad[0]) * Math.cos(pos2rad[1]-pos1rad[1]), Math.sin(pos2rad[1]-pos1rad[1]) * Math.cos(pos2rad[0]));
 		var bearing = (90 - (theta*180/Math.PI)).toLong() % 360;
-		//var bearing = Math.toDegrees(theta);
 		return bearing;
 	}
 	
@@ -343,6 +365,8 @@ class PPGPilotView extends WatchUi.View {
 			// Check speed to detect if flying (TODO: average speed)
 			if (currentGroundSpeed > FLYING_MIN_SPEED) {
 				flying = true;
+				takeoffTime = Time.now().value();
+				landTime = takeoffTime + MAX_FLIGHT_DURATION;
 				startSession();
 		        notification = new Notification("Flying", false, 5);  
 		    }
@@ -351,13 +375,18 @@ class PPGPilotView extends WatchUi.View {
 	
 	// Update the return to home estimates (time to home and point of no return)
 	function updateReturnToHomeStats() {
+		var timeNow = Time.now().value();
 		// Calculate wind contribution to speed when heading straight for home
 		var windSpeedHeadingHome = -windSpeed * Math.cos(Math.toRadians(homeBearing-windDirection));
 		// Assuming we maintain airspeed, calculate total speed while heading straight home
 		groundSpeedHeadingHome = currentAirSpeed + windSpeedHeadingHome;
 		// Calculate time left to go home if flying straight
 		timeToHome = homeDistance / groundSpeedHeadingHome;
-		System.println("Speed to home: " + groundSpeedHeadingHome + ", time to home: " + timeToHome);
+		// Calculate point of no return times
+		var flightTimeLeft = landTime - timeNow;
+		timeToPointOfNoReturn = flightTimeLeft - timeToHome;
+		// Debug
+		System.println("Speed to home: " + groundSpeedHeadingHome + ", time to home: " + timeToHome + ", time to PoNR: " + timeToPointOfNoReturn);
 	}
 	
 	function startSession() {
@@ -378,12 +407,14 @@ class PPGPilotView extends WatchUi.View {
 	      		{:mesgType=>FitContributor.MESG_TYPE_RECORD, :units=>"m"});	 
 	      	homeDirectionField = session.createField("home_direction", 4, FitContributor.DATA_TYPE_FLOAT, 
 	      		{:mesgType=>FitContributor.MESG_TYPE_RECORD, :units=>"degrees"});	 
-	      	timeToHomeField = session.createField("time_to_time", 5, FitContributor.DATA_TYPE_FLOAT, 
-	      		{:mesgType=>FitContributor.MESG_TYPE_RECORD, :units=>"sec"});	  	      		     			  	      		  
+	      	timeToHomeField = session.createField("time_to_home", 5, FitContributor.DATA_TYPE_FLOAT, 
+	      		{:mesgType=>FitContributor.MESG_TYPE_RECORD, :units=>"sec"});	  
+	      	timeToPointOfNoReturnField = session.createField("time_to_pnr", 6, FitContributor.DATA_TYPE_FLOAT, 
+	      		{:mesgType=>FitContributor.MESG_TYPE_RECORD, :units=>"sec"});	 	      		     			  	      		  
 	  		session.start();                                     // call start session
 	    	System.println("Activity recording started");
 	    }
-	}
+	} 
 	
 	function stopSession() {
 		// Stop recording session if already running
