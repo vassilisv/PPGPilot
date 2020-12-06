@@ -18,6 +18,7 @@ class PPGPilotView extends WatchUi.View {
 	const INFO_RADIUS = 0.6;
 	const TITLE_TO_INFO_SPACING = 0.4;
 	const FLYING_MIN_SPEED = 3.57f; // 8 mph
+	const HOME_FIELD_LOOP_PERIOD = 3; // sec
 	const relativeDirection = false;
     var dataTimer; // as per API
     var width; // pixels
@@ -38,9 +39,19 @@ class PPGPilotView extends WatchUi.View {
     var currentAltitude = 0; // meters
     var currentGroundSpeed = 0; // meters / second
     var currentAirSpeed = 0; // meters / second
+    var groundSpeedHeadingHome = 0; // meters / second
+    var timeToHome = 0; // seconds
     var windSpeedField = null;
+	var windDirectionField = null; 
+	var airSpeedField = null;
+	var homeDistanceField = null;
+	var homeDirectionField = null;	  
+	var timeToHomeField = null;	
     var flying = false;
     var session = null;
+    var homeFieldLoopSize = 2;
+    var homeFieldLoopIdx = 0;
+    var homeFieldLoopNextUpdate = 0;
     
     class PixelPos {
     	var x;
@@ -125,9 +136,21 @@ class PPGPilotView extends WatchUi.View {
         	drawInfoField(dc, 90, "WSPD", wSpd.format("%4.1f"));
 
 			// Time/dist to home (TBD)
-			// TODO: Implement, alternate between distance to home and time to home
-			var homeDist = homeDistance*M2MILE;
-        	drawInfoField(dc, 180, "HOME", homeDist.format("%4.1f"));
+			if (homeFieldLoopIdx == 0) {
+				var homeDist = homeDistance*M2MILE;
+        		drawInfoField(dc, 180, "D-HOME", homeDist.format("%4.1f"));
+        	} else if (homeFieldLoopIdx == 1) {
+				var hours = Math.floor(timeToHome / (60*60));
+				var mins = Math.floor((timeToHome - hours*(60*60)) / 60);
+        		drawInfoField(dc, 180, "T-HOME", hours.format("%02d") + ":" + mins.format("%02d"));
+        	}
+        	// Advance to next field in the loop if time
+        	var timeNow = Time.now().value();
+        	System.println(timeNow);
+        	if (timeNow >= homeFieldLoopNextUpdate) {
+        		homeFieldLoopIdx = (homeFieldLoopIdx+1)%homeFieldLoopSize;
+        		homeFieldLoopNextUpdate = timeNow + HOME_FIELD_LOOP_PERIOD;
+        	}
         	
         	// North heading
         	var northAngle = currentHeading;
@@ -260,9 +283,16 @@ class PPGPilotView extends WatchUi.View {
 			}
 			// Update flying state
 			updateFlyingState();
+			// Update fly to home estimates
+			updateReturnToHomeStats();
 			// Update custom fields
 			if (session != null) {
 				windSpeedField.setData(windSpeed);
+				windDirectionField.setData(windDirection);
+				airSpeedField.setData(currentAirSpeed);
+				homeDistanceField.setData(homeDistance);
+				homeDirectionField.setData(homeBearing);
+				timeToHomeField.setData(timeToHome);
 			}
 		} else {
 			System.println("WARNING: Waiting for sensor data, can't process position update");
@@ -315,10 +345,20 @@ class PPGPilotView extends WatchUi.View {
 			if (currentGroundSpeed > FLYING_MIN_SPEED) {
 				flying = true;
 				startSession();
-		        notification = new Notification("Flying", false, 5);
-		    
+		        notification = new Notification("Flying", false, 5);  
 		    }
 		}				
+	}
+	
+	// Update the return to home estimates (time to home and point of no return)
+	function updateReturnToHomeStats() {
+		// Calculate wind contribution to speed when heading straight for home
+		var windSpeedHeadingHome = -windSpeed * Math.cos(Math.toRadians(homeBearing-windDirection));
+		// Assuming we maintain airspeed, calculate total speed while heading straight home
+		groundSpeedHeadingHome = currentAirSpeed + windSpeedHeadingHome;
+		// Calculate time left to go home if flying straight
+		timeToHome = homeDistance / groundSpeedHeadingHome;
+		System.println("Speed to home: " + groundSpeedHeadingHome + ", time to home: " + timeToHome);
 	}
 	
 	function startSession() {
@@ -329,8 +369,18 @@ class PPGPilotView extends WatchUi.View {
 	             :sport=>ActivityRecording.SPORT_GENERIC,       // set sport type
 	             :subSport=>ActivityRecording.SUB_SPORT_GENERIC // set sub sport type
 	      	});
-	      	windSpeedField = session.createField("Windspeed", 0, FitContributor.DATA_TYPE_FLOAT, 
-	      		{:mesgType=>FitContributor.MESG_TYPE_RECORD, :units=>"mph"});
+	      	windSpeedField = session.createField("wind_speed", 0, FitContributor.DATA_TYPE_FLOAT, 
+	      		{:mesgType=>FitContributor.MESG_TYPE_RECORD, :units=>"m/s"});
+	      	windDirectionField = session.createField("wind_direction", 1, FitContributor.DATA_TYPE_FLOAT, 
+	      		{:mesgType=>FitContributor.MESG_TYPE_RECORD, :units=>"degrees"});	
+	      	airSpeedField = session.createField("air_speed", 2, FitContributor.DATA_TYPE_FLOAT, 
+	      		{:mesgType=>FitContributor.MESG_TYPE_RECORD, :units=>"m/s"});
+	      	homeDistanceField = session.createField("home_distance", 3, FitContributor.DATA_TYPE_FLOAT, 
+	      		{:mesgType=>FitContributor.MESG_TYPE_RECORD, :units=>"m"});	 
+	      	homeDirectionField = session.createField("home_direction", 4, FitContributor.DATA_TYPE_FLOAT, 
+	      		{:mesgType=>FitContributor.MESG_TYPE_RECORD, :units=>"degrees"});	 
+	      	timeToHomeField = session.createField("time_to_time", 5, FitContributor.DATA_TYPE_FLOAT, 
+	      		{:mesgType=>FitContributor.MESG_TYPE_RECORD, :units=>"sec"});	  	      		     			  	      		  
 	  		session.start();                                     // call start session
 	    	System.println("Activity recording started");
 	    }
