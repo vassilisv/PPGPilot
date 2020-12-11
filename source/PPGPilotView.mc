@@ -132,20 +132,20 @@ class PPGPilotView extends WatchUi.View {
         	        	
         	// Ground speed
         	var groundSpeed = currentGroundSpeed * MPS2MPH;
-        	drawInfoField(dc, 270, "GSPD", groundSpeed.format("%4.1f"));
+        	drawInfoField(dc, 270, "GSPD", groundSpeed.format("%.1f"));
 
 			// Altitude (baro)
         	var alt = currentAltitude * M2F;
-        	drawInfoField(dc, 0, "ALT", alt.format("%4d"));
+        	drawInfoField(dc, 0, "ALT", alt.format("%d"));
 
 			// Wind speed
         	var wSpd = windSpeed * MPS2MPH;
-        	drawInfoField(dc, 90, "WSPD", wSpd.format("%4.1f"));
+        	drawInfoField(dc, 90, "WSPD", wSpd.format("%.1f"));
 
 			// Time/dist to home (TBD)
 			if (homeFieldLoopIdx == 0) {
 				var homeDist = homeDistance*M2MILE;
-        		drawInfoField(dc, 180, "HOME", homeDist.format("%4.1f"));
+        		drawInfoField(dc, 180, "HOME", homeDist.format("%.1f"));
         	} else if (homeFieldLoopIdx == 1) {
         		if (flying) {
 	        		var minsFlying = Math.round((timeNow - takeoffTime)/60);
