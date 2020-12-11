@@ -1,4 +1,5 @@
 using Toybox.Application;
+using Toybox.System;
 
 class PPGPilotApp extends Application.AppBase {
 	var mainView;
@@ -21,9 +22,18 @@ class PPGPilotApp extends Application.AppBase {
 
     // Return the initial view of your application here
     function getInitialView() {
-        mainView = new PPGPilotView();
+    	// Determine screen shape to decide which view to create
+    	var settings = System.getDeviceSettings();
+    	if (settings.screenShape == 1) {
+    		System.println("Starting round screen view");
+        	mainView = new PPGPilotRoundView();
+        } else if (settings.screenShape == 3) {
+        
+        } else {
+        	System.println("Screen type not known: " + settings.screenShape);
+        }
         viewDelegate = new PPGPilotDelegate( mainView );
         return [mainView, viewDelegate];
     }
 
-}
+} 

@@ -11,7 +11,7 @@ class PPGPilotDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function onSelect() {
-		parentView.startSession();
+		parentView.pilot.startSession();
 		return true;   
     }
 }

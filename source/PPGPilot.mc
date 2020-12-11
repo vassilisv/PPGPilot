@@ -9,27 +9,14 @@ using Toybox.Time;
 using Toybox.ActivityRecording;
 using Toybox.FitContributor;
 
-class PPGPilotView extends WatchUi.View {
-	const MPS2MPH = 2.23694;
-	const M2F = 3.28084;
-	const M2MILE = 0.000621371;
-	const INFO_FONT_SIZE = Graphics.FONT_NUMBER_HOT;
-	const TITLE_FONT_SIZE = Graphics.FONT_XTINY;
-	const INFO_RADIUS = 0.6;
-	const TITLE_TO_INFO_SPACING = 0.4;
+class PPGPilot { 
 	const FLYING_MIN_SPEED = 3.57f; // 8 mph
-	const HOME_FIELD_LOOP_PERIOD = 3; // sec
-	const RELATIVE_DIRECTION = false;
 	const MAX_FLIGHT_DURATION = 60*60; // sec
     var dataTimer; // as per API
-    var width; // pixels
-    var height; // pixels
-    var posInfo; // as per API
+    var posInfo = null; // as per API
     var sensorInfo; // as per API
     var notification; // object
     var gotGPSFix; // bool
-    var infoFontHeight; // pixels
-    var titleFontHeight; // pixels
     var windEstimator; // object
     var homePosInfo; // as per API
     var homeDistance = 0; // meters
@@ -46,26 +33,14 @@ class PPGPilotView extends WatchUi.View {
 	var windDirectionField = null; 
 	var airSpeedField = null;
 	var homeDistanceField = null;
-	var homeDirectionField = null;	  
+	var homeDirectionField = null;	   
 	var timeToHomeField = null;	
 	var timeToPointOfNoReturnField = null;
     var flying = false;
     var session = null;
-    var homeFieldLoopSize = 2;
-    var homeFieldLoopIdx = 0;
-    var homeFieldLoopNextUpdate = 0;
     var takeoffTime = 0; // sec
     var landTime = 0; // sec
     var timeToPointOfNoReturn = 0; // sec
-    
-    class PixelPos {
-    	var x;
-    	var y;
-    	function initialize(x, y) {
-    		self.x = x;
-    		self.y = y;
-    	}
-    }
     
     class Notification {
     	var msg;
@@ -90,16 +65,6 @@ class PPGPilotView extends WatchUi.View {
     }
 
     function initialize() {
-        View.initialize();
-    }
-
-    // Load your resources here
-    function onLayout(dc) {
-        // Setup dims
-        width = dc.getWidth(); 
-        height = dc.getHeight();
-        infoFontHeight = dc.getFontHeight(INFO_FONT_SIZE);
-        titleFontHeight = dc.getFontHeight(TITLE_FONT_SIZE);
         // Setup wind estimator
         windEstimator = new WindEstimator(10, 3);
     	// Setup timer
@@ -115,158 +80,13 @@ class PPGPilotView extends WatchUi.View {
         notification = new Notification("No GPS", true, 0);
     }
 
-    // Restore the state of the app and prepare the view to be shown
-    function onShow() {
-    }
-
-    // Update the view
-    function onUpdate(dc) {
-    	// Reset screen
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-        dc.clear();
-        
-		// Draw text
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        if (posInfo != null) {
-        	var timeNow = Time.now().value();
-        	        	
-        	// Ground speed
-        	var groundSpeed = currentGroundSpeed * MPS2MPH;
-        	drawInfoField(dc, 270, "GSPD", groundSpeed.format("%.1f"));
-
-			// Altitude (baro)
-        	var alt = currentAltitude * M2F;
-        	drawInfoField(dc, 0, "ALT", alt.format("%d"));
-
-			// Wind speed
-        	var wSpd = windSpeed * MPS2MPH;
-        	drawInfoField(dc, 90, "WSPD", wSpd.format("%.1f"));
-
-			// Time/dist to home (TBD)
-			if (homeFieldLoopIdx == 0) {
-				var homeDist = homeDistance*M2MILE;
-        		drawInfoField(dc, 180, "HOME", homeDist.format("%.1f"));
-        	} else if (homeFieldLoopIdx == 1) {
-        		if (flying) {
-	        		var minsFlying = Math.round((timeNow - takeoffTime)/60);
-					var minsToHome = Math.round(timeToHome / 60);
-	        		drawInfoField(dc, 180, "TIME", minsFlying.format("%02d") + "/" + minsToHome.format("%02d"));
-	        	} else {
-	        		drawInfoField(dc, 180, "TIME", "--/--");
-	        	}
-        	}
-        	// Advance to next field in the loop if time
-        	if (timeNow >= homeFieldLoopNextUpdate) {
-        		homeFieldLoopIdx = (homeFieldLoopIdx+1)%homeFieldLoopSize;
-        		homeFieldLoopNextUpdate = timeNow + HOME_FIELD_LOOP_PERIOD;
-        	}
-        	
-        	// North heading
-        	var northAngle = currentHeading;
-        	if (RELATIVE_DIRECTION) {
-        		northAngle = -northAngle;
-        	}
-        	drawDirection(dc, northAngle, Graphics.COLOR_RED, 0);
-        	
- 			// Wind heading
-        	var windAngle = windDirection;
-        	if (RELATIVE_DIRECTION) {
-        		windAngle = -windAngle;
-        	}
-        	drawDirection(dc, windAngle, Graphics.COLOR_YELLOW, 0); 
- 
- 			// Home heading
- 			var homeHeading;
- 			if (RELATIVE_DIRECTION) {
- 				homeHeading = -(currentHeading-homeBearing);
- 			} else {
- 				homeHeading = homeBearing;
- 			}
-        	drawDirection(dc, homeHeading, Graphics.COLOR_GREEN, 0); 
-        	
-        	// Fuel gauge
-        	var fuelLevel = 0.7;
-        	var fuelGaugeWidth = 0.30*width/2;
-        	var fuelGaugeHeight = 0.4*height/2;
-        	var fuelX = width/2-fuelGaugeWidth/2;
-        	var fuelY = height/2-fuelGaugeHeight/2;
-        	var fuelGaugeHeightRemaining = fuelGaugeHeight * timeToPointOfNoReturn/(60*60);
-        	if (fuelGaugeHeightRemaining > fuelGaugeHeight) {
-        		fuelGaugeHeightRemaining = fuelGaugeHeight;
-        	} else if (fuelGaugeHeightRemaining < 0) {
-        		fuelGaugeHeightRemaining = 0;
-        	}
-        	if (!flying) {
-        		dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
-        		dc.fillRectangle(fuelX, fuelY, fuelGaugeWidth, fuelGaugeHeight);	
-        	} else {   		      
-	        	if (timeToPointOfNoReturn < 5*60) {
-	        		dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
-	        	} else if (timeToPointOfNoReturn < 15*60) {
-	        		dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
-	        	} else {
-	        		dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-	        	}
-	        	dc.fillRectangle(fuelX, fuelY, fuelGaugeWidth, fuelGaugeHeight);
-	        	dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
-	        	dc.fillRectangle(fuelX, fuelY+fuelGaugeHeight-fuelGaugeHeightRemaining, fuelGaugeWidth, fuelGaugeHeightRemaining);    
-	        }        	            	   
-		}	        
-        
-        // Draw any notifications
-        if (notification != null) {
-        	// Draw it
-        	dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-			dc.fillRectangle(0, 0, width, 0.35*height);
-        	if (notification.warn) {
-        		dc.setColor(Graphics.COLOR_ORANGE, Graphics.COLOR_TRANSPARENT);
-        	} else {
-        		dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
-        	}
-			var pos = polar2cart(0, 0.65);
-			dc.drawText(pos.x,  pos.y, Graphics.FONT_SYSTEM_LARGE, notification.msg, Graphics.TEXT_JUSTIFY_VCENTER | Graphics.TEXT_JUSTIFY_CENTER);
-			
-        	// If expired delete it
-        	if (notification.isExpired()) {
-        		notification = null;
-        	}
-        }
-        
-    }
-    
-    function drawInfoField(dc, angle, title, info) {
-    	var pos = polar2cart(angle, INFO_RADIUS);
-    	dc.drawText(pos.x, pos.y-(infoFontHeight*TITLE_TO_INFO_SPACING), TITLE_FONT_SIZE, title, Graphics.TEXT_JUSTIFY_VCENTER | Graphics.TEXT_JUSTIFY_CENTER);
-    	dc.drawText(pos.x, pos.y, INFO_FONT_SIZE, info, Graphics.TEXT_JUSTIFY_VCENTER | Graphics.TEXT_JUSTIFY_CENTER);
-    }
-    
-    function drawDirection(dc, angle, color, arrow) {
-    	var startPos = polar2cart(angle, 0.7);
-    	var endPos = polar2cart(angle, 1.0);
-    	dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-    	dc.setPenWidth(7);
-    	dc.drawLine(startPos.x, startPos.y, endPos.x, endPos.y);
-    	var arrowRadius = 0.07;
-    	if (arrow > 0) {
-    		var arrowPos = polar2cart(angle, 1.0 - arrowRadius);
-    		dc.fillCircle(arrowPos.x, arrowPos.y, Math.ceil(arrowRadius*width/2));
-    	} else if (arrow < 0) {
-    		var arrowPos = polar2cart(angle, 0.8 + arrowRadius);
-    		dc.fillCircle(arrowPos.x, arrowPos.y, Math.ceil(arrowRadius*width/2));   
-    	} 	
-    }
 
     function timerCallback() {
         sensorInfo = Sensor.getInfo();
         currentHeading = Math.toDegrees(sensorInfo.heading);
         currentAltitude = sensorInfo.altitude;
-        WatchUi.requestUpdate();
     }
 
-    // Called when this View is removed from the screen. Save the
-    // state of your app here.
-    function onHide() {
-    }
     
     // Called on position updates
 	function onPosition(info) {
@@ -320,15 +140,6 @@ class PPGPilotView extends WatchUi.View {
 			System.println("WARNING: Waiting for sensor data, can't process position update");
 		}
 	    System.println("Position acc: " + posInfo.accuracy); 
-	}
-	
-	// Convert polar (angle in degrees, radius as a fraction of visible screen) to cartesian (x, y in pixels)
-	function polar2cart(angle, radius) {
-		var angleRad = Math.PI/2 - Math.toRadians(angle);
-		var radiusPix = radius*height/2;
-		var x = Math.round(width/2 + radiusPix * Math.cos(angleRad));
-		var y = Math.round(height/2 - radiusPix * Math.sin(angleRad));
-		return new PixelPos(x, y);
 	}
 	
 	// Calculate distance between two positions
@@ -424,10 +235,5 @@ class PPGPilotView extends WatchUi.View {
           	session = null;                                      // set session control variable to null
           	System.println("Activity recording stopped");
       	}	
-	}
-	
-	function onStop() {
-		stopSession();
-      	System.println("App stopped");		
 	}
 }
