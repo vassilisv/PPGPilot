@@ -25,13 +25,13 @@ class PPGPilotApp extends Application.AppBase {
     	// Determine screen shape to decide which view to create
     	var settings = System.getDeviceSettings();
     	if (settings.screenShape == 1) {
-    		System.println("Starting round screen view");
+    		System.println("Starting round screen view (" + settings.screenWidth + "x" + settings.screenHeight + ")");
         	mainView = new PPGPilotRoundView();
         } else if (settings.screenShape == 3) {
-    		System.println("Starting rectangular screen view");
+    		System.println("Starting rectangular screen view (" + settings.screenWidth + "x" + settings.screenHeight + ")");
         	mainView = new PPGPilotRectView();        
         } else {
-        	System.println("Screen type not known: " + settings.screenShape);
+        	System.println("Screen type not known: " + settings.screenShape + " (" + settings.screenWidth + "x" + settings.screenHeight + ")");
         }
         viewDelegate = new PPGPilotDelegate( mainView );
         return [mainView, viewDelegate];
