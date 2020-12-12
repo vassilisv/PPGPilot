@@ -28,7 +28,8 @@ class PPGPilotApp extends Application.AppBase {
     		System.println("Starting round screen view");
         	mainView = new PPGPilotRoundView();
         } else if (settings.screenShape == 3) {
-        
+    		System.println("Starting rectangular screen view");
+        	mainView = new PPGPilotRectView();        
         } else {
         	System.println("Screen type not known: " + settings.screenShape);
         }
