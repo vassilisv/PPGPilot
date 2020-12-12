@@ -15,7 +15,7 @@ class PPGPilotRoundView extends WatchUi.View {
 	const M2MILE = 0.000621371;
 	const INFO_RADIUS = 0.6;
 	const HOME_FIELD_LOOP_PERIOD = 3; // sec
-	const RELATIVE_DIRECTION = false;
+	const RELATIVE_DIRECTION = true;
 	var infoFontSize = null;
 	var titleFontSize = null;
 	var titleToInfoSpacing = 0;

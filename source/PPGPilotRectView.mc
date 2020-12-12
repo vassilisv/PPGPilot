@@ -14,13 +14,14 @@ class PPGPilotRectView extends WatchUi.View {
 	const M2F = 3.28084;
 	const M2MILE = 0.000621371;
 	const HOME_FIELD_LOOP_PERIOD = 3; // sec
-	const RELATIVE_DIRECTION = false;
+	const RELATIVE_DIRECTION = true;
 	const NUMBER_FONT_SIZES = [Graphics.FONT_NUMBER_HOT, Graphics.FONT_NUMBER_MEDIUM, Graphics.FONT_NUMBER_MILD, Graphics.FONT_SMALL];
 	const NUMBER_FONT_SIZES_SMALL = [Graphics.FONT_NUMBER_MILD, Graphics.FONT_SMALL, Graphics.FONT_TINY, Graphics.FONT_XTINY];
-	const TEXT_FONT_SIZES = [Graphics.FONT_LARGE, Graphics.FONT_MEDIUM, Graphics.FONT_SMALL, Graphics.FONT_TINY, Graphics.FONT_XTINY];
+	const TEXT_FONT_SIZES = [Graphics.FONT_SYSTEM_LARGE, Graphics.FONT_LARGE, Graphics.FONT_MEDIUM, Graphics.FONT_SMALL, Graphics.FONT_TINY, Graphics.FONT_XTINY];
 	const FIELD_TITLE_TO_DATA_RATIO = 0.20;
 	const LAYOUT_PROGRESS_CELL_HEIGHT_RATIO = 0.1;
 	const LAYOUT_NUM_CELLS = 9;
+	const NOTIFICATION_HEIGHT_RATIO = 0.35;
 	var grids; // The layout grids, array
 	var pilot; // PPGPilot instance
 	var refreshTimer;
@@ -74,35 +75,67 @@ class PPGPilotRectView extends WatchUi.View {
         	if (RELATIVE_DIRECTION) {
         		windAngle = -windAngle;
         	}
-        	drawDirectionField(dc, grids[2], windAngle, Graphics.COLOR_YELLOW, 0); 
+        	drawDirectionField(dc, grids[2], windAngle, Graphics.COLOR_YELLOW, "WDIR", directionToText(pilot.windDirection)); 
 
 			// Wind speed
         	var wSpd = pilot.windSpeed * MPS2MPH;
-        	drawInfoField(dc, 90, "WSPD", wSpd.format("%.1f"));
+        	drawDataField(dc, grids[3], "WSPD", wSpd.format("%.1f"), null, null);
 
+ 			// Home heading 
+ 			var homeHeading;
+ 			if (RELATIVE_DIRECTION) {
+ 				homeHeading = -(pilot.currentHeading-pilot.homeBearing);
+ 			} else {
+ 				homeHeading = pilot.homeBearing;
+ 			}
+        	drawDirectionField(dc, grids[4], homeHeading, Graphics.COLOR_GREEN, "HDIR", directionToText(pilot.homeBearing)); 
+
+			// Distance from home
+			var homeDist = pilot.homeDistance*M2MILE;
+    		drawDataField(dc, grids[5], "HDIST", homeDist.format("%.1f"), null, null);
 
 			// Altitude (baro)
         	var alt = pilot.currentAltitude * M2F;
-        	drawDataField(dc, grids[1], "ALT", alt.format("%04d"), null, null); 
+        	drawDataField(dc, grids[6], "ALT", alt.format("%04d"), null, null); 
         	
-        	  
-        	
-
+        	// Flight time and time to home
+    		if (pilot.flying) {
+        		var minsFlying = Math.round((timeNow - pilot.takeoffTime)/60);
+				var minsToHome = Math.round(pilot.timeToHome / 60);
+        		drawDataField(dc, grids[7], "TTOTAL/THOME", minsFlying.format("%02d") + "/" + minsToHome.format("%02d"), null, null);
+        	} else {
+        		drawDataField(dc, grids[7], "TTOTAL/THOME", "--/--", null, null);
+        	}  	
+        	   	
+        	// Fuel remaining before having to turn back
+        	var fuelRemaining = pilot.timeToPointOfNoReturn/pilot.MAX_FLIGHT_DURATION;
+        	var color;
+        	if (!pilot.flying) {
+        		color = Graphics.COLOR_DK_GRAY;
+        		fuelRemaining = 1.0;
+        	} else {
+	        	if (pilot.timeToPointOfNoReturn < 5*60) {
+	        		color = Graphics.COLOR_RED;
+	        	} else if (pilot.timeToPointOfNoReturn < 15*60) {
+	        		color = Graphics.COLOR_YELLOW;
+	        	} else {
+	        		color = Graphics.COLOR_GREEN;
+	        	}        	
+        	}     	
+   			drawProgressBar(dc, grids[8], fuelRemaining, color);
 		}	        
         
         // Draw any notifications
         if (pilot.notification != null) {
         	// Draw it
         	dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-			dc.fillRectangle(0, 0, dc.getWidth(), 0.35*dc.getHeight());
+			dc.fillRectangle(0, 0, dc.getWidth(), NOTIFICATION_HEIGHT_RATIO*dc.getHeight());
         	if (pilot.notification.warn) {
         		dc.setColor(Graphics.COLOR_ORANGE, Graphics.COLOR_TRANSPARENT);
         	} else {
         		dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
         	}
-			var pos = polar2cart(0, 0.65, dc.getWidth(), dc.getHeight());
-			dc.drawText(pos[0],  pos[1], Graphics.FONT_SYSTEM_LARGE, pilot.notification.msg, Graphics.TEXT_JUSTIFY_VCENTER | Graphics.TEXT_JUSTIFY_CENTER);
-			
+        	drawText(dc, 0, 0, dc.getWidth(), NOTIFICATION_HEIGHT_RATIO*dc.getHeight(), pilot.notification.msg, TEXT_FONT_SIZES);			
         	// If expired delete it
         	if (pilot.notification.isExpired()) {
         		pilot.notification = null;
@@ -221,21 +254,11 @@ class PPGPilotRectView extends WatchUi.View {
 		return minVal;
 	}
 	
-	// Convert polar (angle in degrees, radius as a fraction of visible screen) to cartesian (x, y in pixels)
-	function polar2cart(angle, radius, width, height) {
-		var angleRad = Math.PI/2 - Math.toRadians(angle);
-		var radiusPix = radius*height/2;
-		var x = Math.round(width/2 + radiusPix * Math.cos(angleRad));
-		var y = Math.round(height/2 - radiusPix * Math.sin(angleRad));
-		return [x, y];
-	}
-	
-
 	// Initialize the layout grid	
 	function initGridLayout(width, height) {
 		var grids = new [LAYOUT_NUM_CELLS];
 		// Calculate last cell (long horizontal)
-		grids[LAYOUT_NUM_CELLS-1] = [height*(1-LAYOUT_PROGRESS_CELL_HEIGHT_RATIO), 0, height*LAYOUT_PROGRESS_CELL_HEIGHT_RATIO, width];
+		grids[LAYOUT_NUM_CELLS-1] = [0, height*(1-LAYOUT_PROGRESS_CELL_HEIGHT_RATIO), width, height*LAYOUT_PROGRESS_CELL_HEIGHT_RATIO];
 		// Split remaining equally 
 		for (var i = 0; i < LAYOUT_NUM_CELLS - 1; ++i) {
 			var x = (i%2) * width/2.0;
@@ -274,7 +297,26 @@ class PPGPilotRectView extends WatchUi.View {
 		}
 	}
 	
+	// Draw a progress bar
+	function drawProgressBar(dc, screenPos, progress, color) {
+		var x = screenPos[0];
+    	var y = screenPos[1];
+    	var width = screenPos[2];
+    	var height = screenPos[3];
+    	// Bound progress
+    	if (progress > 1.0) {
+    		progress = 1.0;
+    	} else if (progress < 0.0) {
+    		progress = 0.0;
+    	}
+    	// Progress
+    	dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+    	dc.fillRectangle(x, y, width*progress, height);    
+    	// Bounding box
+    	dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+    	dc.setPenWidth(1);
+    	dc.drawRectangle(x, y, width, height);
+	}	
 		
-	
 	
 }
