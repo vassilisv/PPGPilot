@@ -20,10 +20,10 @@ class PPGPilotRectView extends WatchUi.View {
 	const TEXT_FONT_SIZES = [Graphics.FONT_SYSTEM_LARGE, Graphics.FONT_LARGE, Graphics.FONT_MEDIUM, Graphics.FONT_SMALL, Graphics.FONT_TINY, Graphics.FONT_XTINY];
 	const FIELD_TITLE_TO_DATA_RATIO = 0.20;
 	const LAYOUT_PROGRESS_CELL_HEIGHT_RATIO = 0.1;
-	const LAYOUT_NUM_CELLS = 9;
 	const NOTIFICATION_HEIGHT_RATIO = 0.35;
 	var grids; // The layout grids, array
 	var pilot; // PPGPilot instance
+	var compass; // CompassView instance
 	var refreshTimer;
     var homeFieldLoopSize = 2;
     var homeFieldLoopIdx = 0;
@@ -36,7 +36,9 @@ class PPGPilotRectView extends WatchUi.View {
     // Load your resources here
     function onLayout(dc) { 
     	// Setup grid layout
-    	grids = initGridLayout(dc.getWidth(), dc.getHeight());		
+    	grids = initGridLayout(dc.getWidth(), dc.getHeight());	
+    	// Setup compass
+    	compass = new CompassView(grids[3][0], grids[3][1], grids[3][2], grids[3][3]);	
         // Setup PPGPilot
         pilot = new PPGPilot();
     	// Setup timer
@@ -58,55 +60,49 @@ class PPGPilotRectView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         if (pilot.posInfo != null) {
         	var timeNow = Time.now().value();
-        	        	
-        	// Heading
+        	        	   			
+   			// Draw compass rose
         	var northAngle = pilot.currentHeading;
         	if (RELATIVE_DIRECTION) {
         		northAngle = -northAngle;
         	}
-        	drawDirectionField(dc, grids[0], northAngle, Graphics.COLOR_RED, "HEADING", directionToText(pilot.currentHeading));          	 
-        	        	
-        	// Ground speed
-        	var groundSpeed = pilot.currentGroundSpeed * MPS2MPH;
-        	drawDataField(dc, grids[1], "GSPD", groundSpeed.format("%02.1f"), null, null);
-
- 			// Wind heading
-        	var windAngle = pilot.windDirection;
-        	if (RELATIVE_DIRECTION) {
-        		windAngle = -windAngle;
-        	}
-        	drawDirectionField(dc, grids[2], windAngle, Graphics.COLOR_YELLOW, "WDIR", directionToText(pilot.windDirection)); 
-
-			// Wind speed
-        	var wSpd = pilot.windSpeed * MPS2MPH;
-        	drawDataField(dc, grids[3], "WSPD", wSpd.format("%.1f"), null, null);
-
- 			// Home heading 
  			var homeHeading;
  			if (RELATIVE_DIRECTION) {
  				homeHeading = -(pilot.currentHeading-pilot.homeBearing);
  			} else {
  				homeHeading = pilot.homeBearing;
  			}
-        	drawDirectionField(dc, grids[4], homeHeading, Graphics.COLOR_GREEN, "HDIR", directionToText(pilot.homeBearing)); 
-
-			// Distance from home
-			var homeDist = pilot.homeDistance*M2MILE;
-    		drawDataField(dc, grids[5], "HDIST", homeDist.format("%.1f"), null, null);
-
+        	var windAngle = pilot.windDirection;
+        	if (RELATIVE_DIRECTION) {
+        		windAngle = -windAngle;
+        	}
+   			compass.update(dc, northAngle, homeHeading, windAngle);
+   			
+        	// Ground speed
+        	var groundSpeed = pilot.currentGroundSpeed * MPS2MPH;
+        	drawDataField(dc, grids[0], "GSPD", groundSpeed.format("%02.1f"), null, null, true);   			
+   			
+			// Wind speed
+        	var wSpd = pilot.windSpeed * MPS2MPH;
+        	drawDataField(dc, grids[1], "WSPD", wSpd.format("%.1f"), null, null, true);   			
+   			
 			// Altitude (baro)
         	var alt = pilot.currentAltitude * M2F;
-        	drawDataField(dc, grids[6], "ALT", alt.format("%04d"), null, null); 
+        	drawDataField(dc, grids[5], "ALT", alt.format("%04d"), null, null, true); 
         	
+			// Distance from home
+			var homeDist = pilot.homeDistance*M2MILE;
+    		drawDataField(dc, grids[6], "HDIST", homeDist.format("%.1f"), null, null, true);        	
+
         	// Flight time and time to home
     		if (pilot.flying) {
         		var minsFlying = Math.round((timeNow - pilot.takeoffTime)/60);
 				var minsToHome = Math.round(pilot.timeToHome / 60);
-        		drawDataField(dc, grids[7], "TTOTAL/THOME", minsFlying.format("%02d") + "/" + minsToHome.format("%02d"), null, null);
+        		drawDataField(dc, grids[7], "TTOTAL/THOME", minsFlying.format("%02d") + "/" + minsToHome.format("%02d"), null, null, false);
         	} else {
-        		drawDataField(dc, grids[7], "TTOTAL/THOME", "--/--", null, null);
-        	}  	
-        	   	
+        		drawDataField(dc, grids[7], "TTOTAL/THOME", "--/--", null, null, false);
+        	}  
+   			
         	// Fuel remaining before having to turn back
         	var fuelRemaining = pilot.timeToPointOfNoReturn/pilot.MAX_FLIGHT_DURATION;
         	var color;
@@ -122,7 +118,8 @@ class PPGPilotRectView extends WatchUi.View {
 	        		color = Graphics.COLOR_GREEN;
 	        	}        	
         	}     	
-   			drawProgressBar(dc, grids[8], fuelRemaining, color);
+   			drawProgressBar(dc, grids[2], fuelRemaining, color);
+   			
 		}	        
         
         // Draw any notifications
@@ -145,7 +142,7 @@ class PPGPilotRectView extends WatchUi.View {
     }
     
     // Draw a datafield
-    function drawDataField(dc, screenPos, title, data, titleFonts, dataFonts) {
+    function drawDataField(dc, screenPos, title, data, titleFonts, dataFonts, boundingBox) {
     	var x = screenPos[0];
     	var y = screenPos[1];
     	var width = screenPos[2];
@@ -166,9 +163,11 @@ class PPGPilotRectView extends WatchUi.View {
     		drawText(dc, x, y+height*FIELD_TITLE_TO_DATA_RATIO, width, height*(1-FIELD_TITLE_TO_DATA_RATIO), data, dataFonts);
     	}
     	// Bounding box
-    	dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
-    	dc.setPenWidth(1);
-    	dc.drawRectangle(x, y, width, height);
+    	if (boundingBox) {
+	    	dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+	    	dc.setPenWidth(1);
+	    	dc.drawRectangle(x, y, width, height);
+	    }
     }
     
     // Drawtext
@@ -213,19 +212,11 @@ class PPGPilotRectView extends WatchUi.View {
 		dc.setPenWidth(3);
 		dc.fillPolygon([[pointX, pointY], [tailLX, tailLY], [tailCX, tailCY], [tailRX, tailRY]]);
 		// Title and data
-		drawDataField(dc, screenPos, title, data, null, TEXT_FONT_SIZES); 
+		drawDataField(dc, screenPos, title, data, null, TEXT_FONT_SIZES, true); 
 		// Bounding box
     	dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
     	dc.setPenWidth(1);
     	dc.drawRectangle(x, y, width, height);
-	}
-	
-	// Draw a compass rose and display different directional elements (TODO)
-	function drawCompassRose(dc, x, y, radius) {
-		// Draw circle
-		dc.setColor(Graphics.COLOR_DK_BLUE, Graphics.COLOR_TRANSPARENT);
-		dc.setPenWidth(3);
-		dc.drawCircle(x, y, radius);
 	}
 
 	// Refresh screen
@@ -256,17 +247,28 @@ class PPGPilotRectView extends WatchUi.View {
 	
 	// Initialize the layout grid	
 	function initGridLayout(width, height) {
-		var grids = new [LAYOUT_NUM_CELLS];
-		// Calculate last cell (long horizontal)
-		grids[LAYOUT_NUM_CELLS-1] = [0, height*(1-LAYOUT_PROGRESS_CELL_HEIGHT_RATIO), width, height*LAYOUT_PROGRESS_CELL_HEIGHT_RATIO];
-		// Split remaining equally 
-		for (var i = 0; i < LAYOUT_NUM_CELLS - 1; ++i) {
-			var x = (i%2) * width/2.0;
-			var y = Math.floor(i/2.0) * height * (1-LAYOUT_PROGRESS_CELL_HEIGHT_RATIO)/4.0;
-			var w = width/2;
-			var h = height * (1-LAYOUT_PROGRESS_CELL_HEIGHT_RATIO)/4.0;
-			grids[i] = [x, y, w, h];
-		}
+		var grids = new [8];
+		var compassWidthPercent = 0.87;
+		var compassFieldPercent = 0.5;
+		var compassWidth = width*compassWidthPercent;
+		var compassHeight = compassWidth;
+		var compassX = (width-compassWidth)/2.0;
+		var compassY = (height-compassHeight)/2.0;
+		var fieldHeight = (height - compassHeight)/2.0;
+		var barWidth = (width - compassWidth)/2.0;
+		// Grid 0 and 1, top two fields
+		grids[0] = [0, 0, width/2, fieldHeight];
+		grids[1] = [width/2, 0, width/2, fieldHeight];
+		// Grid 5 and 6, bottom two fields
+		grids[5] = [0, fieldHeight+compassHeight, width/2, fieldHeight];
+		grids[6] = [width/2, fieldHeight+compassHeight, width/2, fieldHeight];
+		// Grid 3, main compass rose
+		grids[3] = [compassX, compassY, compassWidth, compassHeight];
+		// Grid 2 and 4, progress bars
+		grids[2] = [0, fieldHeight, barWidth, compassHeight];
+		grids[4] = [barWidth+compassWidth, fieldHeight, barWidth, compassHeight];
+		// Grid 7, field in middle of compass rose
+		grids[7] = [compassX+compassWidth*compassFieldPercent/2.0, compassY+compassHeight*compassFieldPercent/2.0, compassWidth*compassFieldPercent, compassHeight*compassFieldPercent];	
 		// Done
 		return grids;
 	}
