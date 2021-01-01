@@ -59,7 +59,7 @@ class CompassView {
 				drawCompass(dc, center_x, center_y, size_max);
 			}
 			
-			drawWindDirection(dc, center_x, center_y, size_max, windDirection);
+			drawWindDirection(dc, center_x, center_y, size_max, heading+windDirection);
 		}
 	}
 	

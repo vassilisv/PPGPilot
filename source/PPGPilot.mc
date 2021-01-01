@@ -121,7 +121,7 @@ class PPGPilot {
 			    windSpeed = windEstimate[0];
 			    windDirection = windEstimate[1];
 			    currentAirSpeed = windEstimate[2];
-			    System.println("Wind speed/direction/airspeed: " + windSpeed + " / " + windDirection + " / " + currentAirSpeed);
+			    System.println("Wind speed/direction/airspeed: " + windSpeed*2.23694 + " / " + windDirection + " / " + currentAirSpeed*2.23694);
 			}
 			// Update flying state
 			updateFlyingState();
@@ -198,7 +198,7 @@ class PPGPilot {
 		var flightTimeLeft = landTime - timeNow;
 		timeToPointOfNoReturn = flightTimeLeft - timeToHome;
 		// Debug
-		System.println("Speed to home: " + groundSpeedHeadingHome + ", time to home: " + timeToHome + ", time to PoNR: " + timeToPointOfNoReturn);
+		System.println("Speed to home: " + groundSpeedHeadingHome*2.23694 + " (mph), time to home: " + timeToHome + ", time to PoNR: " + timeToPointOfNoReturn);
 	}
 	
 	function startSession() {

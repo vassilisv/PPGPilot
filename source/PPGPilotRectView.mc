@@ -98,9 +98,9 @@ class PPGPilotRectView extends WatchUi.View {
     		if (pilot.flying) {
         		var minsFlying = Math.round((timeNow - pilot.takeoffTime)/60);
 				var minsToHome = Math.round(pilot.timeToHome / 60);
-        		drawDataField(dc, grids[7], "TTOTAL/THOME", minsFlying.format("%02d") + "/" + minsToHome.format("%02d"), null, null, false);
+        		drawDataField(dc, grids[7], "TOT/RET", minsFlying.format("%02d") + "/" + minsToHome.format("%02d"), null, null, false);
         	} else {
-        		drawDataField(dc, grids[7], "TTOTAL/THOME", "--/--", null, null, false);
+        		drawDataField(dc, grids[7], "TOT/RET", "--/--", null, null, false);
         	}  
    			
         	// Fuel remaining before having to turn back
@@ -311,9 +311,10 @@ class PPGPilotRectView extends WatchUi.View {
     	} else if (progress < 0.0) {
     		progress = 0.0;
     	}
+    	var progressHeight = height*progress;
     	// Progress
     	dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-    	dc.fillRectangle(x, y, width*progress, height);    
+    	dc.fillRectangle(x, y+height-progressHeight, width, progressHeight);    
     	// Bounding box
     	dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
     	dc.setPenWidth(1);
