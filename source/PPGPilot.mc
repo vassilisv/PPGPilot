@@ -83,7 +83,6 @@ class PPGPilot {
 
     function timerCallback() {
         sensorInfo = Sensor.getInfo();
-        currentHeading = Math.toDegrees(sensorInfo.heading);
         currentAltitude = sensorInfo.altitude;
     }
 
@@ -107,6 +106,8 @@ class PPGPilot {
 					notification = new Notification("Got GPS", false, 10);
 				}
 			}
+			// Update heading
+			currentHeading = Math.toDegrees(posInfo.heading);
 			// Update speed
 			currentGroundSpeed = posInfo.speed;
 			// Calculate home distance and bearing
