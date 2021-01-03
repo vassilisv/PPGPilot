@@ -13,8 +13,6 @@ class PPGPilotRectView extends WatchUi.View {
 	const MPS2MPH = 2.23694;
 	const M2F = 3.28084;
 	const M2MILE = 0.000621371;
-	const HOME_FIELD_LOOP_PERIOD = 3; // sec
-	const RELATIVE_DIRECTION = true;
 	const NUMBER_FONT_SIZES = [Graphics.FONT_NUMBER_THAI_HOT, Graphics.FONT_NUMBER_HOT, Graphics.FONT_NUMBER_MEDIUM, Graphics.FONT_NUMBER_MILD, Graphics.FONT_SMALL];
 	const NUMBER_FONT_SIZES_SMALL = [Graphics.FONT_NUMBER_MILD, Graphics.FONT_SMALL, Graphics.FONT_TINY, Graphics.FONT_XTINY];
 	const TEXT_FONT_SIZES = [Graphics.FONT_SYSTEM_LARGE, Graphics.FONT_LARGE, Graphics.FONT_MEDIUM, Graphics.FONT_SMALL, Graphics.FONT_TINY, Graphics.FONT_XTINY];
@@ -28,6 +26,7 @@ class PPGPilotRectView extends WatchUi.View {
     var homeFieldLoopSize = 2;
     var homeFieldLoopIdx = 0;
     var homeFieldLoopNextUpdate = 0;
+    var dark = false;
     
     function initialize() {
         View.initialize();
@@ -38,7 +37,7 @@ class PPGPilotRectView extends WatchUi.View {
     	// Setup grid layout
     	grids = initGridLayout(dc.getWidth(), dc.getHeight());	
     	// Setup compass
-    	compass = new CompassView(grids[3][0], grids[3][1], grids[3][2], grids[3][3]);	
+    	compass = new CompassView(grids[3][0], grids[3][1], grids[3][2], grids[3][3], dark);	
         // Setup PPGPilot
         pilot = new PPGPilot();
     	// Setup timer
@@ -53,30 +52,24 @@ class PPGPilotRectView extends WatchUi.View {
     // Update the view
     function onUpdate(dc) {
     	// Reset screen
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+    	if (dark) {
+        	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        } else {
+        	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_WHITE);
+        }
         dc.clear();
         
 		// Draw text
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+		if (dark) {
+        	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        } else {
+        	dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+        }
         if (pilot.posInfo != null) {
         	var timeNow = Time.now().value();
         	        	   			
    			// Draw compass rose
-        	var northAngle = pilot.currentHeading;
-        	if (RELATIVE_DIRECTION) {
-        		northAngle = -northAngle;
-        	}
- 			var homeHeading;
- 			if (RELATIVE_DIRECTION) {
- 				homeHeading = -(pilot.currentHeading-pilot.homeBearing);
- 			} else {
- 				homeHeading = pilot.homeBearing;
- 			}
-        	var windAngle = pilot.windDirection;
-        	if (RELATIVE_DIRECTION) {
-        		windAngle = -windAngle;
-        	}
-   			compass.update(dc, northAngle, homeHeading, windAngle);
+   			compass.update(dc, pilot.currentHeading, pilot.homeBearing, pilot.windDirection, pilot.homeLocked);
    			
         	// Ground speed
         	var groundSpeed = pilot.currentGroundSpeed * MPS2MPH;
@@ -155,7 +148,11 @@ class PPGPilotRectView extends WatchUi.View {
     		dataFonts = NUMBER_FONT_SIZES;
     	}    	
     	// Text
-    	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+    	if (dark) {
+    		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+    	} else {
+    		dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+    	}
     	if (title != null) {
     		drawText(dc, x, y, width, height*FIELD_TITLE_TO_DATA_RATIO, title, titleFonts);
     	}
@@ -164,7 +161,7 @@ class PPGPilotRectView extends WatchUi.View {
     	}
     	// Bounding box
     	if (boundingBox) {
-	    	dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+	    	dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
 	    	dc.setPenWidth(1);
 	    	dc.drawRectangle(x, y, width, height);
 	    }
@@ -214,7 +211,7 @@ class PPGPilotRectView extends WatchUi.View {
 		// Title and data
 		drawDataField(dc, screenPos, title, data, null, TEXT_FONT_SIZES, true); 
 		// Bounding box
-    	dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+    	dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
     	dc.setPenWidth(1);
     	dc.drawRectangle(x, y, width, height);
 	}
@@ -316,7 +313,7 @@ class PPGPilotRectView extends WatchUi.View {
     	dc.setColor(color, Graphics.COLOR_TRANSPARENT);
     	dc.fillRectangle(x, y+height-progressHeight, width, progressHeight);    
     	// Bounding box
-    	dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+    	dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
     	dc.setPenWidth(1);
     	dc.drawRectangle(x, y, width, height);
 	}	

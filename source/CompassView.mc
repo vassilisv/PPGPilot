@@ -9,27 +9,34 @@ class CompassView {
     hidden var RAY_EARTH = 6378137; 
     hidden var heading_rad = null;
 
-    hidden var northStr="N";
+    hidden var northStr="|N|";
     hidden var eastStr="E";
     hidden var southStr="S";
     hidden var westStr="W";
     hidden var center_x;
 	hidden var center_y;
 	hidden var size_max;
+	hidden var dark;
+	hidden var x;
+	hidden var y;
+	hidden var width;
+	hidden var height;
 	
-	function initialize(x, y, width, height) {
+	function initialize(x, y, width, height, dark_theme) {
+		self.x = x;
+		self.y = y;
+		self.width = width;
+		self.height = height;
 		size_max = width > height ? height-height*0.025 : width-width*0.025;
     	center_x = x + width / 2;
 		center_y = y + height / 2;
+		dark = dark_theme;
 	}
           
-	function update(dc, heading, homeDirection, windDirection) {  
-	    dc.setColor(Gfx.COLOR_TRANSPARENT, Graphics.COLOR_BLACK);
-        dc.clear();  
-               
-		heading_rad = Math.toRadians(heading);
+	function update(dc, heading, homeDirection, windDirection, homeLocked) {                
+		heading_rad = Math.toRadians(heading); 
 		if( heading_rad != null) {
-			var map_declination = 0;
+			var map_declination = 0; // TODO
 			if (map_declination != null ) {
 				if(map_declination instanceof Toybox.Lang.String) {
 					map_declination = map_declination.toFloat();
@@ -43,8 +50,8 @@ class CompassView {
             							
 			var display_logo_orientation = true;
             if( display_logo_orientation ){
-            	var logo_orientation=Math.toRadians(homeDirection);
-            	drawLogoOrientation(dc, center_x, center_y, size_max, logo_orientation);
+            	var home_direction_rad = Math.toRadians(homeDirection); 
+            	drawLogoOrientation(dc, center_x, center_y, size_max, heading_rad-home_direction_rad, homeLocked);
 			}
 			
 			var display_text_orientation = false;
@@ -59,13 +66,13 @@ class CompassView {
 				drawCompass(dc, center_x, center_y, size_max);
 			}
 			
-			drawWindDirection(dc, center_x, center_y, size_max, heading+windDirection);
+			var wind_direction_rad=Math.toRadians(windDirection);
+			drawWindDirection(dc, center_x, center_y, size_max, heading_rad-wind_direction_rad);
 		}
 	}
 	
-	function drawWindDirection(dc, center_x, center_y, size, direction) {
+	function drawWindDirection(dc, center_x, center_y, size, direction_rad) {
 		var radius = size / 2 - 10;
-		var direction_rad = Math.toRadians(direction);
 		dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
 		var xy1 = pol2Cart(center_x, center_y, direction_rad, radius-radius/2.5);
 		var xy2 = pol2Cart(center_x, center_y, direction_rad-Math.PI/25, radius-radius/10);
@@ -74,7 +81,12 @@ class CompassView {
 	}
 	
 	function drawTextSpeed(dc, center_x, center_y, size, speed){
-		var color = Graphics.COLOR_LT_GRAY;
+		var color;
+		if (dark) {
+			color = Graphics.COLOR_LT_GRAY;
+		} else {
+			color = Graphics.COLOR_DK_GRAY;
+		}
 		var fontMetric = Graphics.FONT_TINY;
 		var speedStr=Lang.format("$1$", [speed.format("%.1f")]);
 		var font = Graphics.FONT_NUMBER_HOT ;
@@ -89,7 +101,12 @@ class CompassView {
 	}
     
 	function drawTextOrientation(dc, center_x, center_y, size, orientation){
-		var color = Graphics.COLOR_LT_GRAY;
+		var color; 
+		if (dark) {
+			color = Graphics.COLOR_LT_GRAY;
+		} else {
+			color = Graphics.COLOR_DK_GRAY;
+		}
 		var fontOrientaion;
 		var fontMetric = Graphics.FONT_TINY;
 
@@ -110,9 +127,19 @@ class CompassView {
 	}
 	   
 	function drawCompass(dc, center_x, center_y, size) {
-		var colorText = Graphics.COLOR_WHITE;
-		var colorTextNorth = Graphics.COLOR_WHITE;
-		var colorCompass = Graphics.COLOR_RED;
+		var colorText;
+		var colorTextNorth;
+		var colorCompass;
+		
+		if (dark) {
+			colorText = Graphics.COLOR_WHITE;
+			colorTextNorth = Graphics.COLOR_WHITE;
+			colorCompass = Graphics.COLOR_RED;
+		} else {
+			colorText = Graphics.COLOR_BLACK;
+			colorTextNorth = Graphics.COLOR_BLACK;
+			colorCompass = Graphics.COLOR_RED;	
+		}				
 		
 		var size_text = 1;
 		var radius;
@@ -164,12 +191,13 @@ class CompassView {
 		}  		    
 	}
     
-	function drawLogoOrientation(dc, center_x, center_y, size, orientation){
-		var color = Graphics.COLOR_RED;
+	function drawLogoOrientation(dc, center_x, center_y, size, orientation, homeLocked){
 		var radius=size/3.10;
-		
-		dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-	
+		if (homeLocked) {
+			dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+		} else {
+			dc.setColor(Graphics.COLOR_ORANGE, Graphics.COLOR_TRANSPARENT);
+		}	
 		var xy1 = pol2Cart(center_x, center_y, orientation, radius);
 		var xy2 = pol2Cart(center_x, center_y, orientation+135*Math.PI/180, radius);
 		var xy3 = pol2Cart(center_x, center_y, orientation+171*Math.PI/180, radius/2.5);
@@ -185,7 +213,7 @@ class CompassView {
 	}
     
 	function pol2Cart(center_x, center_y, radian, radius) {
-		var x = center_x - radius * Math.sin(radian);
+		var x = center_x - radius * Math.sin(radian); // Possible BUG: should be + but above code is adapted so leave as is
 		var y = center_y - radius * Math.cos(radian);
 		 
 		return [Math.ceil(x), Math.ceil(y)];

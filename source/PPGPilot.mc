@@ -11,7 +11,9 @@ using Toybox.FitContributor;
 
 class PPGPilot { 
 	const FLYING_MIN_SPEED = 3.57f; // 8 mph
+	const COMPASS_SPEED = 0.4f; // 0.9 mph
 	const MAX_FLIGHT_DURATION = 60*60; // sec
+	const HOME_LOCK_TOLERANCE = 10; // +/- degrees tolerance from home direction
     var dataTimer; // as per API
     var posInfo = null; // as per API
     var sensorInfo; // as per API
@@ -26,6 +28,7 @@ class PPGPilot {
     var currentHeading = 0; // degrees from North
     var currentAltitude = 0; // meters
     var currentGroundSpeed = 0; // meters / second
+    var currentGroundSpeedAvrg = null; // MovingAverage instance (meters/second)
     var currentAirSpeed = 0; // meters / second
     var groundSpeedHeadingHome = 0; // meters / second
     var timeToHome = 0; // seconds
@@ -41,6 +44,7 @@ class PPGPilot {
     var takeoffTime = 0; // sec
     var landTime = 0; // sec
     var timeToPointOfNoReturn = 0; // sec
+    var homeLocked = false; // locked towards home
     
     class Notification {
     	var msg;
@@ -67,6 +71,8 @@ class PPGPilot {
     function initialize() {
         // Setup wind estimator
         windEstimator = new WindEstimator(10, 3);
+        // Setup average speed
+        currentGroundSpeedAvrg = new MovingAverage(10, 0);
     	// Setup timer
         dataTimer = new Timer.Timer();
         dataTimer.start(method(:timerCallback), 200, true);
@@ -107,13 +113,19 @@ class PPGPilot {
 				}
 			}
 			// Update heading
-			currentHeading = Math.toDegrees(posInfo.heading);
+			if (currentGroundSpeedAvrg.avrg <= COMPASS_SPEED) {
+				currentHeading = Math.toDegrees(sensorInfo.heading);
+				System.println("Warning: GPS speed too low, using compass heading");
+			} else {
+				currentHeading = Math.toDegrees(posInfo.heading);
+			}
 			// Update speed
 			currentGroundSpeed = posInfo.speed;
+			currentGroundSpeedAvrg.update(currentGroundSpeed);
 			// Calculate home distance and bearing
 		    homeDistance = posDistance(posInfo.position, homePosInfo.position);
 		    homeBearing = posBearing(posInfo.position, homePosInfo.position);
-		    System.println("Bearing/Disr: " + homeBearing + ", " + homeDistance);
+		    System.println("Home bearing/Dist: " + homeBearing + ", " + homeDistance);
 		    System.println("Heading: " + currentHeading);
 		    // Calculate wind speed
 		    var windEstimate = windEstimator.update(currentGroundSpeed, currentHeading);
@@ -174,8 +186,8 @@ class PPGPilot {
 	function updateFlyingState() {
 		// Nothing to do if already flying
 		if (!flying) {
-			// Check speed to detect if flying (TODO: average speed)
-			if (currentGroundSpeed > FLYING_MIN_SPEED) {
+			// Check speed to detect if flying 
+			if (currentGroundSpeedAvrg.avrg > FLYING_MIN_SPEED) {
 				flying = true;
 				takeoffTime = Time.now().value();
 				landTime = takeoffTime + MAX_FLIGHT_DURATION;
@@ -188,17 +200,29 @@ class PPGPilot {
 	// Update the return to home estimates (time to home and point of no return)
 	function updateReturnToHomeStats() {
 		var timeNow = Time.now().value();
+		// Calculate if we are home locked
+		var homeAngleDiff = Math.round(currentHeading - homeBearing + 180 + 360).toLong() % 360 - 180;
+		if (homeAngleDiff <= HOME_LOCK_TOLERANCE && homeAngleDiff >= -HOME_LOCK_TOLERANCE) {
+			homeLocked = true;
+		} else {
+			homeLocked = false;
+		}
 		// Calculate wind contribution to speed when heading straight for home
 		var windSpeedHeadingHome = -windSpeed * Math.cos(Math.toRadians(homeBearing-windDirection));
-		// Assuming we maintain airspeed, calculate total speed while heading straight home
-		groundSpeedHeadingHome = currentAirSpeed + windSpeedHeadingHome;
+		// Assuming we maintain airspeed, calculate total speed while heading straight home.
+		// If home locked then use current ground speed average
+		if (homeLocked) {
+			groundSpeedHeadingHome = currentGroundSpeedAvrg.avrg;
+		} else {
+			groundSpeedHeadingHome = currentAirSpeed + windSpeedHeadingHome;
+		}
 		// Calculate time left to go home if flying straight
 		timeToHome = homeDistance / groundSpeedHeadingHome;
 		// Calculate point of no return times
 		var flightTimeLeft = landTime - timeNow;
 		timeToPointOfNoReturn = flightTimeLeft - timeToHome;
 		// Debug
-		System.println("Speed to home: " + groundSpeedHeadingHome*2.23694 + " (mph), time to home: " + timeToHome + ", time to PoNR: " + timeToPointOfNoReturn);
+		System.println("Speed to home: " + groundSpeedHeadingHome*2.23694 + " (mph), time to home: " + timeToHome + ", time to PoNR: " + timeToPointOfNoReturn + ", home locked: " + homeLocked);
 	}
 	
 	function startSession() {
