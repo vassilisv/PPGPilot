@@ -11,7 +11,7 @@ using Toybox.FitContributor;
 
 class PPGPilot { 
 	const FLYING_MIN_SPEED = 3.57f; // 8 mph
-	const COMPASS_SPEED = 0.4f; // 0.9 mph
+	const COMPASS_SPEED = 0.5f; // 1 mph
 	const MAX_FLIGHT_DURATION = 60*60; // sec
 	const HOME_LOCK_TOLERANCE = 10; // +/- degrees tolerance from home direction
     var dataTimer; // as per API
