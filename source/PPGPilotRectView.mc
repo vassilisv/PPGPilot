@@ -254,18 +254,18 @@ class PPGPilotRectView extends WatchUi.View {
 		var fieldHeight = (height - compassHeight)/2.0;
 		var barWidth = (width - compassWidth)/2.0;
 		// Grid 0 and 1, top two fields
-		grids[0] = [0, 0, width/2, fieldHeight];
-		grids[1] = [width/2, 0, width/2, fieldHeight];
+		grids[0] = [0, 0, Math.ceil(width/2), Math.ceil(fieldHeight)];
+		grids[1] = [Math.ceil(width/2), 0, Math.ceil(width/2), Math.ceil(fieldHeight)];
 		// Grid 5 and 6, bottom two fields
-		grids[5] = [0, fieldHeight+compassHeight, width/2, fieldHeight];
-		grids[6] = [width/2, fieldHeight+compassHeight, width/2, fieldHeight];
+		grids[5] = [0, Math.ceil(fieldHeight+compassHeight), Math.ceil(width/2), Math.ceil(fieldHeight)];
+		grids[6] = [Math.ceil(width/2), Math.ceil(fieldHeight+compassHeight), Math.ceil(width/2), Math.ceil(fieldHeight)];
 		// Grid 3, main compass rose
-		grids[3] = [compassX, compassY, compassWidth, compassHeight];
+		grids[3] = [Math.ceil(compassX), Math.ceil(compassY), Math.ceil(compassWidth), Math.ceil(compassHeight)];
 		// Grid 2 and 4, progress bars
-		grids[2] = [0, fieldHeight, barWidth, compassHeight];
-		grids[4] = [barWidth+compassWidth, fieldHeight, barWidth, compassHeight];
+		grids[2] = [0, Math.ceil(fieldHeight), Math.ceil(barWidth), Math.ceil(compassHeight)];
+		grids[4] = [Math.ceil(barWidth+compassWidth), Math.ceil(fieldHeight), Math.ceil(barWidth), Math.ceil(compassHeight)];
 		// Grid 7, field in middle of compass rose
-		grids[7] = [compassX+compassWidth*compassFieldPercent/2.0, compassY+compassHeight*compassFieldPercent/2.0, compassWidth*compassFieldPercent, compassHeight*compassFieldPercent];	
+		grids[7] = [Math.ceil(compassX+compassWidth*compassFieldPercent/2.0), Math.ceil(compassY+compassHeight*compassFieldPercent/2.0), Math.ceil(compassWidth*compassFieldPercent), Math.ceil(compassHeight*compassFieldPercent)];	
 		// Done
 		return grids;
 	}

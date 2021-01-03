@@ -54,7 +54,7 @@ class PPGPilot {
     		self.msg = msg;
     		self.warn = warn;
     		if (timeout > 0) {
-    			self.timeToExpire = Time.now().add(new Time.Duration(10));
+    			self.timeToExpire = Time.now().add(new Time.Duration(6));
     		} else {
     			self.timeToExpire = null;
     		}
