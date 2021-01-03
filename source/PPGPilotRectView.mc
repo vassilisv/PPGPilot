@@ -19,13 +19,14 @@ class PPGPilotRectView extends WatchUi.View {
 	const FIELD_TITLE_TO_DATA_RATIO = 0.20;
 	const LAYOUT_PROGRESS_CELL_HEIGHT_RATIO = 0.1;
 	const NOTIFICATION_HEIGHT_RATIO = 0.35;
+	const FIELD_LOOP_PERIOD = 3;
 	var grids; // The layout grids, array
 	var pilot; // PPGPilot instance
 	var compass; // CompassView instance
 	var refreshTimer;
-    var homeFieldLoopSize = 2;
-    var homeFieldLoopIdx = 0;
-    var homeFieldLoopNextUpdate = 0;
+    var fieldLoopSize = 2;
+    var fieldLoopIdx = 0;
+    var fieldLoopNextUpdate = 0;
     var dark = false;
     
     function initialize() {
@@ -73,19 +74,24 @@ class PPGPilotRectView extends WatchUi.View {
    			
         	// Ground speed
         	var groundSpeed = pilot.currentGroundSpeed * MPS2MPH;
-        	drawDataField(dc, grids[0], "GSPD", groundSpeed.format("%02.1f"), null, null, true);   			
+        	drawDataField(dc, grids[0], "GROUND SPD", groundSpeed.format("%02.1f"), null, null, true);   			
    			
-			// Wind speed
-        	var wSpd = pilot.windSpeed * MPS2MPH;
-        	drawDataField(dc, grids[1], "WSPD", wSpd.format("%.1f"), null, null, true);   			
-   			
+			// Wind or air speed
+			if (fieldLoopIdx == 0) {
+	        	var wSpd = pilot.windSpeed * MPS2MPH;
+	        	drawDataField(dc, grids[1], "WIND SPD", wSpd.format("%.1f"), null, null, true);  
+	        } else if (fieldLoopIdx == 1) {
+	        	var aSpd = pilot.currentAirSpeed * MPS2MPH;
+	        	drawDataField(dc, grids[1], "AIR SPD", aSpd.format("%.1f"), null, null, true);  
+	        }	        
+			
 			// Altitude (baro)
         	var alt = pilot.currentAltitude * M2F;
         	drawDataField(dc, grids[5], "ALT", alt.format("%04d"), null, null, true); 
         	
 			// Distance from home
 			var homeDist = pilot.homeDistance*M2MILE;
-    		drawDataField(dc, grids[6], "HDIST", homeDist.format("%.1f"), null, null, true);        	
+    		drawDataField(dc, grids[6], "HOME DIST", homeDist.format("%.1f"), null, null, true);        	
 
         	// Flight time and time to home
     		if (pilot.flying) {
@@ -112,6 +118,12 @@ class PPGPilotRectView extends WatchUi.View {
 	        	}        	
         	}     	
    			drawProgressBar(dc, grids[2], fuelRemaining, color);
+   			
+   			// Advance to next field in the loop if time
+        	if (timeNow >= fieldLoopNextUpdate) {
+        		fieldLoopIdx = (fieldLoopIdx+1)%fieldLoopSize;
+        		fieldLoopNextUpdate = timeNow + FIELD_LOOP_PERIOD;
+        	}
    			
 		}	        
         
