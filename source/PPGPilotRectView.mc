@@ -86,8 +86,8 @@ class PPGPilotRectView extends WatchUi.View {
 	        	drawDataField(dc, grids[1], "AIR SPD", aSpd.format("%.1f"), null, null, true);  
 	        }	        
 			
-			// Altitude (baro)
-        	var alt = pilot.currentAltitude * M2F;
+			// Altitude
+        	var alt = pilot.currentAltitudeOverHome * M2F;
         	drawDataField(dc, grids[5], "ALT", alt.format("%04d"), null, null, true); 
         	
 			// Distance from home

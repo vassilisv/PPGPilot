@@ -23,10 +23,12 @@ class PPGPilot {
     var homePosInfo; // as per API
     var homeDistance = 0; // meters
     var homeBearing = 0; // degrees from North
+    var homeAltitude = 0; // meters
     var windSpeed = 0; // meters / second
     var windDirection = 0; // degrees from North
     var currentHeading = 0; // degrees from North
     var currentAltitude = 0; // meters
+    var currentAltitudeOverHome = 0; // meters
     var currentGroundSpeed = 0; // meters / second
     var currentGroundSpeedAvrg = null; // MovingAverage instance (meters/second)
     var currentVerticalSpeedAvrg = null; // DerivativeAvergae instance (meters/second)
@@ -92,6 +94,7 @@ class PPGPilot {
     function timerCallback() {
         sensorInfo = Sensor.getInfo();
         currentAltitude = sensorInfo.altitude;
+        currentAltitudeOverHome = currentAltitude - homeAltitude;
     }
 
     
@@ -109,6 +112,7 @@ class PPGPilot {
 				// Set home if not done already
 				if (homePosInfo == null) {
 					homePosInfo = info;
+					homeAltitude = currentAltitude;
 					notification = new Notification("Home Set", false, 10);
 				} else {
 					notification = new Notification("Got GPS", false, 10);
