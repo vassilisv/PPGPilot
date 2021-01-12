@@ -1,6 +1,4 @@
 class MovingAverage {
-	const INIT_SPEED = 10.3f; // 23 mph
-	const MIN_SPEED = 1.56f; // 3.5 mph
 	var values;
 	var valueIndex;
 	var avrg;

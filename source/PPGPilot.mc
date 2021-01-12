@@ -29,6 +29,7 @@ class PPGPilot {
     var currentAltitude = 0; // meters
     var currentGroundSpeed = 0; // meters / second
     var currentGroundSpeedAvrg = null; // MovingAverage instance (meters/second)
+    var currentVerticalSpeedAvrg = null; // DerivativeAvergae instance (meters/second)
     var currentAirSpeed = 0; // meters / second
     var groundSpeedHeadingHome = 0; // meters / second
     var timeToHome = 0; // seconds
@@ -71,8 +72,9 @@ class PPGPilot {
     function initialize() {
         // Setup wind estimator
         windEstimator = new WindEstimator(10, 3);
-        // Setup average speed
+        // Setup average speed and vario
         currentGroundSpeedAvrg = new MovingAverage(10, 0);
+        currentVerticalSpeedAvrg = new DerivativeAverage(2);
     	// Setup timer
         dataTimer = new Timer.Timer();
         dataTimer.start(method(:timerCallback), 200, true);
@@ -119,9 +121,12 @@ class PPGPilot {
 			} else {
 				currentHeading = Math.toDegrees(posInfo.heading);
 			}
-			// Update speed
+			// Update ground speed
 			currentGroundSpeed = posInfo.speed;
 			currentGroundSpeedAvrg.update(currentGroundSpeed);
+			// Update vertical speed
+			currentVerticalSpeedAvrg.update(currentAltitude);
+			System.println("Vario: " + currentVerticalSpeedAvrg.derivative + "m/s");
 			// Calculate home distance and bearing
 		    homeDistance = posDistance(posInfo.position, homePosInfo.position);
 		    homeBearing = posBearing(posInfo.position, homePosInfo.position);

@@ -20,6 +20,7 @@ class PPGPilotRectView extends WatchUi.View {
 	const LAYOUT_PROGRESS_CELL_HEIGHT_RATIO = 0.1;
 	const NOTIFICATION_HEIGHT_RATIO = 0.35;
 	const FIELD_LOOP_PERIOD = 3;
+	const MAX_VARIO = 2.0;
 	var grids; // The layout grids, array
 	var pilot; // PPGPilot instance
 	var compass; // CompassView instance
@@ -118,6 +119,9 @@ class PPGPilotRectView extends WatchUi.View {
 	        	}        	
         	}     	
    			drawProgressBar(dc, grids[2], fuelRemaining, color);
+   			
+   			// Draw vario
+   			drawVarioBar(dc, grids[4], pilot.currentVerticalSpeedAvrg.derivative);
    			
    			// Advance to next field in the loop if time
         	if (timeNow >= fieldLoopNextUpdate) {
@@ -277,7 +281,7 @@ class PPGPilotRectView extends WatchUi.View {
 		grids[2] = [0, Math.ceil(fieldHeight), Math.ceil(barWidth), Math.ceil(compassHeight)];
 		grids[4] = [Math.ceil(barWidth+compassWidth), Math.ceil(fieldHeight), Math.ceil(barWidth), Math.ceil(compassHeight)];
 		// Grid 7, field in middle of compass rose
-		grids[7] = [Math.ceil(compassX+compassWidth*compassFieldPercent/2.0), Math.ceil(compassY+compassHeight*compassFieldPercent/2.0), Math.ceil(compassWidth*compassFieldPercent), Math.ceil(compassHeight*compassFieldPercent)];	
+		grids[7] = [Math.ceil(compassX+compassWidth*compassFieldPercent/2.0), Math.ceil(compassY+compassHeight*compassFieldPercent/2.0), Math.ceil(compassWidth*compassFieldPercent), Math.ceil(compassHeight*compassFieldPercent)];	 
 		// Done
 		return grids;
 	}
@@ -329,6 +333,32 @@ class PPGPilotRectView extends WatchUi.View {
     	dc.setPenWidth(1);
     	dc.drawRectangle(x, y, width, height);
 	}	
-		
+
+	// Draw a progress bar
+	function drawVarioBar(dc, screenPos, vario) {
+		var x = screenPos[0];
+    	var y = screenPos[1];
+    	var width = screenPos[2];
+    	var height = screenPos[3];
+    	// Bound progress
+    	if (vario > MAX_VARIO) {
+    		vario = MAX_VARIO;
+    	} else if (vario < -MAX_VARIO) {
+    		vario = -MAX_VARIO;
+    	}
+    	var varioHeight = (height/2.0)*(vario/MAX_VARIO);
+    	// Progress
+    	if (vario > 0) {
+    		dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
+    		dc.fillRectangle(x, y+height/2.0-varioHeight, width, varioHeight);
+    	} else {
+    		dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+    		dc.fillRectangle(x, y+height/2.0, width, -varioHeight);
+    	}
+    	// Bounding box
+    	dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+    	dc.setPenWidth(1);
+    	dc.drawRectangle(x, y, width, height);
+	}		
 	
 }
