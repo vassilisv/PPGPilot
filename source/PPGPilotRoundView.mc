@@ -16,6 +16,7 @@ class PPGPilotRoundView extends WatchUi.View {
 	const INFO_RADIUS = 0.6;
 	const HOME_FIELD_LOOP_PERIOD = 3; // sec
 	const RELATIVE_DIRECTION = true;
+	const ENABLE_FUEL_GAUGE = false;
 	var infoFontSize = null;
 	var titleFontSize = null;
 	var titleToInfoSpacing = 0;
@@ -88,14 +89,14 @@ class PPGPilotRoundView extends WatchUi.View {
         	drawInfoField(dc, 270, "GSPD", groundSpeed.format("%.1f"));
 
 			// Altitude (baro)
-        	var alt = pilot.currentAltitude * M2F;
+        	var alt = pilot.currentAltitudeOverHome * M2F;
         	drawInfoField(dc, 0, "ALT", alt.format("%d"));
 
 			// Wind speed
         	var wSpd = pilot.windSpeed * MPS2MPH;
         	drawInfoField(dc, 90, "WSPD", wSpd.format("%.1f"));
 
-			// Time/dist to home (TBD)
+			// Time/dist to home
 			if (homeFieldLoopIdx == 0) {
 				var homeDist = pilot.homeDistance*M2MILE;
         		drawInfoField(dc, 180, "HOME", homeDist.format("%.1f"));
@@ -126,7 +127,7 @@ class PPGPilotRoundView extends WatchUi.View {
         	if (RELATIVE_DIRECTION) {
         		windAngle = -windAngle;
         	}
-        	drawDirection(dc, windAngle, Graphics.COLOR_YELLOW, 0); 
+        	drawDirection(dc, windAngle, Graphics.COLOR_YELLOW, -1); 
  
  			// Home heading
  			var homeHeading;
@@ -135,35 +136,41 @@ class PPGPilotRoundView extends WatchUi.View {
  			} else {
  				homeHeading = pilot.homeBearing;
  			}
-        	drawDirection(dc, homeHeading, Graphics.COLOR_GREEN, 0); 
+        	drawDirection(dc, homeHeading, Graphics.COLOR_GREEN, 1); 
         	
         	// Fuel gauge
-        	var fuelLevel = 0.7;
-        	var fuelGaugeWidth = 0.30*width/2;
-        	var fuelGaugeHeight = 0.4*height/2;
-        	var fuelX = width/2-fuelGaugeWidth/2;
-        	var fuelY = height/2-fuelGaugeHeight/2;
-        	var fuelGaugeHeightRemaining = fuelGaugeHeight * pilot.timeToPointOfNoReturn/pilot.MAX_FLIGHT_DURATION;
-        	if (fuelGaugeHeightRemaining > fuelGaugeHeight) {
-        		fuelGaugeHeightRemaining = fuelGaugeHeight;
-        	} else if (fuelGaugeHeightRemaining < 0) {
-        		fuelGaugeHeightRemaining = 0;
-        	}
-        	if (!pilot.flying) {
-        		dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
-        		dc.fillRectangle(fuelX, fuelY, fuelGaugeWidth, fuelGaugeHeight);	
-        	} else {   		      
-	        	if (pilot.timeToPointOfNoReturn < 5*60) {
-	        		dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
-	        	} else if (pilot.timeToPointOfNoReturn < 15*60) {
-	        		dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
-	        	} else {
-	        		dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+        	if (ENABLE_FUEL_GAUGE) {
+	        	var fuelLevel = 0.7;
+	        	var fuelGaugeWidth = 0.30*width/2;
+	        	var fuelGaugeHeight = 0.4*height/2;
+	        	var fuelX = width/2-fuelGaugeWidth/2;
+	        	var fuelY = height/2-fuelGaugeHeight/2;
+	        	var fuelGaugeHeightRemaining = fuelGaugeHeight * pilot.timeToPointOfNoReturn/pilot.MAX_FLIGHT_DURATION;
+	        	if (fuelGaugeHeightRemaining > fuelGaugeHeight) {
+	        		fuelGaugeHeightRemaining = fuelGaugeHeight;
+	        	} else if (fuelGaugeHeightRemaining < 0) {
+	        		fuelGaugeHeightRemaining = 0;
 	        	}
-	        	dc.fillRectangle(fuelX, fuelY, fuelGaugeWidth, fuelGaugeHeight);
-	        	dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
-	        	dc.fillRectangle(fuelX, fuelY+fuelGaugeHeight-fuelGaugeHeightRemaining, fuelGaugeWidth, fuelGaugeHeightRemaining);    
-	        }        	            	   
+	        	if (!pilot.flying) {
+	        		dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+	        		dc.fillRectangle(fuelX, fuelY, fuelGaugeWidth, fuelGaugeHeight);	
+	        	} else {   		      
+		        	if (pilot.timeToPointOfNoReturn < 5*60) {
+		        		dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+		        	} else if (pilot.timeToPointOfNoReturn < 15*60) {
+		        		dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
+		        	} else {
+		        		dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+		        	}
+		        	dc.fillRectangle(fuelX, fuelY, fuelGaugeWidth, fuelGaugeHeight);
+		        	dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
+		        	dc.fillRectangle(fuelX, fuelY+fuelGaugeHeight-fuelGaugeHeightRemaining, fuelGaugeWidth, fuelGaugeHeightRemaining);    
+		        } 
+	        
+	        // Vario
+	        } else {
+	        	drawVario(dc, pilot.currentVerticalSpeedAvrg.derivative);
+	        }      	            	   
 		}	        
         
         // Draw any notifications
@@ -194,23 +201,82 @@ class PPGPilotRoundView extends WatchUi.View {
     }
     
     function drawDirection(dc, angle, color, arrow) {
-    	var startPos = polar2cart(angle, 0.7);
-    	var endPos = polar2cart(angle, 1.0);
+    	var arrowAngle = 5;
+    	var maxRad = 1.0;
+    	var minRad = 0.7;
+    	var p1;
+    	var p2;
+    	var p3;
     	dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-    	dc.setPenWidth(7);
-    	dc.drawLine(startPos.x, startPos.y, endPos.x, endPos.y);
-    	var arrowRadius = 0.07;
     	if (arrow > 0) {
-    		var arrowPos = polar2cart(angle, 1.0 - arrowRadius);
-    		dc.fillCircle(arrowPos.x, arrowPos.y, Math.ceil(arrowRadius*width/2));
+    		p1 = polar2cart(angle, maxRad);
+    		p2 = polar2cart(angle+7, minRad);
+    		p3 = polar2cart(angle-7, minRad);
+    		dc.fillPolygon([[p1.x, p1.y], [p2.x, p2.y], [p3.x, p3.y]]); 
     	} else if (arrow < 0) {
-    		var arrowPos = polar2cart(angle, 0.8 + arrowRadius);
-    		dc.fillCircle(arrowPos.x, arrowPos.y, Math.ceil(arrowRadius*width/2));   
-    	} 	
+    		p1 = polar2cart(angle, minRad);
+    		p2 = polar2cart(angle+5, maxRad);
+    		p3 = polar2cart(angle-5, maxRad); 
+    		dc.fillPolygon([[p1.x, p1.y], [p2.x, p2.y], [p3.x, p3.y]]);   
+    	} else {
+    		p1 = polar2cart(angle, minRad);
+    		p2 = polar2cart(angle, maxRad);
+    		dc.setPenWidth(5);
+    		dc.drawLine(p1.x, p1.y, p2.x, p2.y);
+    	}
+    			
+    }
+    
+    function drawVario(dc, rate) {
+    	var varioWidth = 25;
+    	var varioHeight = 30;
+    	var varioCenterX = width / 2;
+    	var varioCenterY = height / 2;
+    	var varioBottomY = varioCenterY + varioHeight/2;
+    	var varioTopY = varioCenterY - varioHeight/2;
+    	dc.setPenWidth(3);
+    	if (rate < 0.1 && rate > -0.1) {
+    		dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+    		dc.drawLine(varioCenterX-varioWidth/2, varioCenterY, varioCenterX+varioWidth/2, varioCenterY);
+    	} else {
+    		var numArrows = Math.round(abs(rate) / 0.5);
+    		if (numArrows == 0) {
+    			numArrows = 1;
+    		} else if (numArrows > 6) {
+    			numArrows = 6;
+    		}
+    		for (var n = 0; n < numArrows; ++n) {
+    			if (rate > 0) {
+    				drawVarioArrow(dc, varioCenterX, varioBottomY-n*7, true);
+    			} else {
+    				drawVarioArrow(dc, varioCenterX, varioTopY+n*7, false);
+    			}
+    		}
+		}
+    }
+    
+    function drawVarioArrow(dc, x, y, dirUp) {
+    	if (dirUp) {
+    		dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
+    		dc.drawLine(x, y, x - 15, y + 10);
+    		dc.drawLine(x, y, x + 15, y + 10);
+    	} else {
+    		dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+    		dc.drawLine(x, y, x - 15, y - 10);
+    		dc.drawLine(x, y, x + 15, y - 10);    	
+    	}
     }
 
     function timerCallback() {
         WatchUi.requestUpdate();
+    }
+    
+    function abs(n) {
+    	if (n < 0) {
+    		return -n;
+    	} else {
+    		return n;
+    	}
     }
 
     // Called when this View is removed from the screen. Save the
@@ -226,6 +292,7 @@ class PPGPilotRoundView extends WatchUi.View {
 		var y = Math.round(height/2 - radiusPix * Math.sin(angleRad));
 		return new PixelPos(x, y);
 	}
+	
 	
 	function onStop() {
 		pilot.stopSession();
