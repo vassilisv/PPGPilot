@@ -1,5 +1,5 @@
 // Based on https://gitlab.com/ravenfeld/Connect-IQ-App-Compass
-// Updated to display additional wind specific fields by vassilis@vrhome.net
+// Updated to display additional wind specific fields by vassilisv
 
 using Toybox.Application as App;
 using Toybox.Graphics as Gfx;

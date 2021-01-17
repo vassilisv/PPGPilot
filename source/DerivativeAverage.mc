@@ -12,7 +12,7 @@ class DerivativeAverage {
 	
 	function update(value) {
 		var timeNow = Time.now().value();
-		if (lastValue != null) {
+		if (lastValue != null && lastUpdateTime != null && timeNow > lastUpdateTime) {
 			derivative = avrgDerivative.update((value - lastValue)/(timeNow - lastUpdateTime));
 		} else {
 			derivative = 0;

@@ -15,7 +15,6 @@ class PPGPilotRoundView extends WatchUi.View {
 	const M2MILE = 0.000621371;
 	const INFO_RADIUS = 0.6;
 	const HOME_FIELD_LOOP_PERIOD = 3; // sec
-	const RELATIVE_DIRECTION = true;
 	const ENABLE_FUEL_GAUGE = false;
 	var infoFontSize = null;
 	var titleFontSize = null;
@@ -117,25 +116,14 @@ class PPGPilotRoundView extends WatchUi.View {
         	
         	// North heading
         	var northAngle = pilot.currentHeading;
-        	if (RELATIVE_DIRECTION) {
-        		northAngle = -northAngle;
-        	}
         	drawDirection(dc, northAngle, Graphics.COLOR_RED, 0);
         	
  			// Wind heading
-        	var windAngle = pilot.windDirection;
-        	if (RELATIVE_DIRECTION) {
-        		windAngle = -windAngle;
-        	}
+        	var windAngle = -(pilot.currentHeading-pilot.windDirection);
         	drawDirection(dc, windAngle, Graphics.COLOR_YELLOW, -1); 
  
  			// Home heading
- 			var homeHeading;
- 			if (RELATIVE_DIRECTION) {
- 				homeHeading = -(pilot.currentHeading-pilot.homeBearing);
- 			} else {
- 				homeHeading = pilot.homeBearing;
- 			}
+ 			var homeHeading = -(pilot.currentHeading-pilot.homeBearing);
         	drawDirection(dc, homeHeading, Graphics.COLOR_GREEN, 1); 
         	
         	// Fuel gauge
