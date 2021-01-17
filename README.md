@@ -16,9 +16,9 @@ The Oregon layout.
  
 # Installation
 
-The app was originally developed for personal use so it is not yet submitted to the Garmin IQ app store. It can be manually installed by connecting your device to a computer using a USB cable and manually copping the app binary to the D:\GARMIN\APPS directory (the drive letter may need to be updated for your setup). The app binary for your device can be found in the [Releases](https://github.com/vassilisv/PPGPilot/releases). If you can't find your device, you can either compile it yourself using the Garmin IQ SDK or submit an issue.
+The app was originally developed for personal use so it is not yet submitted to the Garmin IQ app store. It can be manually installed by connecting your device to a computer using a USB cable and manually copping the app binary to the __D:\GARMIN\APPS directory__ (the drive letter may need to be updated for your setup). The app binary for your device can be found in the [Releases](https://github.com/vassilisv/PPGPilot/releases). If you can't find your device, you can either compile it yourself using the Garmin IQ SDK or submit an issue.
  
-# TODO
+# To Do
 
 - Use forecasted wind direction and speed to initialize before takeoff
 - Add options menu (desired flight duration etc)
