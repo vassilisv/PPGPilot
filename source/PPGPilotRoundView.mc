@@ -1,7 +1,6 @@
 using Toybox.WatchUi;
 using Toybox.Graphics;
 using Toybox.Sensor;
-using Toybox.Timer;
 using Toybox.Math;
 using Toybox.Position;
 using Toybox.System;
@@ -20,7 +19,6 @@ class PPGPilotRoundView extends WatchUi.View {
 	var titleFontSize = null;
 	var titleToInfoSpacing = 0;
 	var pilot; // PPGPilot instance
-	var refreshTimer;
     var width; // pixels
     var height; // pixels
     var infoFontHeight; // pixels
@@ -28,6 +26,7 @@ class PPGPilotRoundView extends WatchUi.View {
     var homeFieldLoopSize = 2;
     var homeFieldLoopIdx = 0;
     var homeFieldLoopNextUpdate = 0;
+    var layoutInitDone = false;
 
     class PixelPos {
     	var x;
@@ -38,34 +37,36 @@ class PPGPilotRoundView extends WatchUi.View {
     	}
     }
     
-    function initialize() {
+    function initialize(pilot) {
         View.initialize();
+        self.pilot = pilot;
     }
 
     // Load your resources here
     function onLayout(dc) {
-    	// Figure out font size
-    	var titleToInfoSpacingScale;
-    	if (dc.getWidth() < 240) {
-    		infoFontSize = Graphics.FONT_NUMBER_HOT;
-    		titleFontSize = Graphics.FONT_XTINY;
-    		titleToInfoSpacingScale = 16.0; 
-    	} else {
-     		infoFontSize = Graphics.FONT_NUMBER_MEDIUM;
-    		titleFontSize = Graphics.FONT_XTINY;
-    		titleToInfoSpacingScale = 5.0; 
-    	}   		
-        // Setup dims
-        width = dc.getWidth(); 
-        height = dc.getHeight();
-        infoFontHeight = dc.getFontHeight(infoFontSize);
-        titleFontHeight = dc.getFontHeight(titleFontSize);
-        titleToInfoSpacing = titleToInfoSpacingScale*(height/infoFontHeight);
-        // Setup PPGPilot
-        pilot = new PPGPilot();
-    	// Setup timer
-        refreshTimer = new Timer.Timer();
-        refreshTimer.start(method(:timerCallback), 200, true);
+    	if (!layoutInitDone) {
+	    	System.println("Setting up new layout");
+	    	// Figure out font size
+	    	var titleToInfoSpacingScale;
+	    	if (dc.getWidth() < 240) {
+	    		infoFontSize = Graphics.FONT_NUMBER_HOT;
+	    		titleFontSize = Graphics.FONT_XTINY;
+	    		titleToInfoSpacingScale = 16.0; 
+	    	} else {
+	     		infoFontSize = Graphics.FONT_NUMBER_MEDIUM;
+	    		titleFontSize = Graphics.FONT_XTINY;
+	    		titleToInfoSpacingScale = 5.0; 
+	    	}   		
+	        // Setup dims
+	        width = dc.getWidth(); 
+	        height = dc.getHeight();
+	        infoFontHeight = dc.getFontHeight(infoFontSize);
+	        titleFontHeight = dc.getFontHeight(titleFontSize);
+	        titleToInfoSpacing = titleToInfoSpacingScale*(height/infoFontHeight);
+	        layoutInitDone = true;
+        } else {
+        	System.println("New layout request, skipping since already done");
+        }
     }
 
     // Restore the state of the app and prepare the view to be shown
@@ -254,10 +255,6 @@ class PPGPilotRoundView extends WatchUi.View {
     		dc.drawLine(x, y, x + 15, y - 10);    	
     	}
     }
-
-    function timerCallback() {
-        WatchUi.requestUpdate();
-    }
     
     function abs(n) {
     	if (n < 0) {
@@ -281,9 +278,4 @@ class PPGPilotRoundView extends WatchUi.View {
 		return new PixelPos(x, y);
 	}
 	
-	
-	function onStop() {
-		pilot.stopSession();
-      	System.println("App stopped");		
-	}
 }

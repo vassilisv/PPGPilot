@@ -1,7 +1,6 @@
 using Toybox.WatchUi;
 using Toybox.Graphics;
 using Toybox.Sensor;
-using Toybox.Timer;
 using Toybox.Math;
 using Toybox.Position;
 using Toybox.System;
@@ -24,27 +23,29 @@ class PPGPilotRectView extends WatchUi.View {
 	var grids; // The layout grids, array
 	var pilot; // PPGPilot instance
 	var compass; // CompassView instance
-	var refreshTimer;
     var fieldLoopSize = 2;
     var fieldLoopIdx = 0;
     var fieldLoopNextUpdate = 0;
     var dark = false;
+    var layoutInitDone = false;
     
-    function initialize() {
+    function initialize(pilot) {
         View.initialize();
+        self.pilot = pilot;
     }
 
     // Load your resources here
     function onLayout(dc) { 
-    	// Setup grid layout
-    	grids = initGridLayout(dc.getWidth(), dc.getHeight());	
-    	// Setup compass
-    	compass = new CompassView(grids[3][0], grids[3][1], grids[3][2], grids[3][3], dark);	
-        // Setup PPGPilot
-        pilot = new PPGPilot();
-    	// Setup timer
-        refreshTimer = new Timer.Timer();
-        refreshTimer.start(method(:timerCallback), 200, true);
+    	if (!layoutInitDone) {
+	    	System.println("Setting up new layout");
+	    	// Setup grid layout
+	    	grids = initGridLayout(dc.getWidth(), dc.getHeight());	
+	    	// Setup compass
+	    	compass = new CompassView(grids[3][0], grids[3][1], grids[3][2], grids[3][3], dark);	
+	        layoutInitDone = true;
+        } else {
+        	System.println("New layout request, skipping since already done");
+        }
     }
 
     // Restore the state of the app and prepare the view to be shown
@@ -232,21 +233,11 @@ class PPGPilotRectView extends WatchUi.View {
     	dc.drawRectangle(x, y, width, height);
 	}
 
-	// Refresh screen
-    function timerCallback() {
-        WatchUi.requestUpdate();
-    }
-
     // Called when this View is removed from the screen. Save the
     // state of your app here.
     function onHide() {
     }
 		
-	function onStop() {
-		pilot.stopSession();
-      	System.println("App stopped");		
-	}
-	
 	// Get min value from array
 	function min(values) {
 		var minVal = 10e6;
