@@ -226,7 +226,11 @@ class PPGPilot {
 			groundSpeedHeadingHome = currentAirSpeed + windSpeedHeadingHome;
 		}
 		// Calculate time left to go home if flying straight
-		timeToHome = homeDistance / groundSpeedHeadingHome;
+		if (groundSpeedHeadingHome > 0) {
+			timeToHome = homeDistance / groundSpeedHeadingHome;
+		} else {
+			timeToHome = 0;
+		}
 		// Calculate point of no return times
 		var flightTimeLeft = landTime - timeNow;
 		timeToPointOfNoReturn = flightTimeLeft - timeToHome;
