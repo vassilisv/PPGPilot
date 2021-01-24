@@ -29,7 +29,7 @@ class PPGPilotApp extends Application.AppBase {
         pilot = new PPGPilot();
         // Setup refresh timer
         refreshTimer = new Timer.Timer();
-        refreshTimer.start(method(:timerCallback), 1000, true);
+        refreshTimer.start(method(:timerCallback), 500, true);
         // Setup views
         views = [];
     	// Determine screen shape to decide which main view to create
