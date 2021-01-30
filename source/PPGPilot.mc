@@ -8,12 +8,14 @@ using Toybox.System;
 using Toybox.Time;
 using Toybox.ActivityRecording;
 using Toybox.FitContributor;
+using Utils;
 
 class PPGPilot { 
 	const FLYING_MIN_SPEED = 3.57f; // 8 mph
 	const COMPASS_SPEED = 0.5f; // 1 mph
 	const MAX_FLIGHT_DURATION = 60*60; // sec
 	const HOME_LOCK_TOLERANCE = 10; // +/- degrees tolerance from home direction
+	const HOME_WAIT_TIME = 15; // sec
     var dataTimer; // as per API
     var posInfo = null; // as per API
     var sensorInfo; // as per API
@@ -35,6 +37,7 @@ class PPGPilot {
     var currentAirSpeed = 0; // meters / second
     var groundSpeedHeadingHome = 0; // meters / second
     var timeToHome = 0; // seconds
+    var timeToSaveHome = 0; // time
     var windSpeedField = null;
 	var windDirectionField = null; 
 	var airSpeedField = null;
@@ -61,6 +64,7 @@ class PPGPilot {
     		} else {
     			self.timeToExpire = null;
     		}
+    		Utils.attention();
     	}
     	function isExpired() {
     		if (self.timeToExpire == null) {
@@ -102,61 +106,69 @@ class PPGPilot {
 	function onPosition(info) {
 		posInfo = info;
 		// Check for good accuracy
-		if (posInfo.accuracy < 2) {
-			notification = new Notification("No GPS", true, 10);
-			gotGPSFix = false;
+		if (posInfo.accuracy < Position.QUALITY_USABLE) {
+			if (gotGPSFix) {
+				notification = new Notification("No GPS", true, 0);
+				gotGPSFix = false;
+			}
 		} else if (sensorInfo != null) {
-			// Set home and notify
+			// Update GPS fix status
 			if (!gotGPSFix) {
 				gotGPSFix = true;
-				// Set home if not done already
-				if (homePosInfo == null) {
-					homePosInfo = info;
-					homeAltitude = currentAltitude;
-					notification = new Notification("Home Set", false, 10);
-				} else {
+				if (homePosInfo != null) {
 					notification = new Notification("Got GPS", false, 10);
 				}
 			}
-			// Update heading
-			if (currentGroundSpeedAvrg.avrg <= COMPASS_SPEED) {
-				currentHeading = Math.toDegrees(sensorInfo.heading);
-				System.println("Warning: GPS speed too low, using compass heading");
-			} else {
-				currentHeading = Math.toDegrees(posInfo.heading);
-			}
-			// Update ground speed
-			currentGroundSpeed = posInfo.speed;
-			currentGroundSpeedAvrg.update(currentGroundSpeed);
-			// Update vertical speed
-			currentVerticalSpeedAvrg.update(currentAltitude);
-			System.println("Vario: " + currentVerticalSpeedAvrg.derivative + "m/s");
-			// Calculate home distance and bearing
-		    homeDistance = posDistance(posInfo.position, homePosInfo.position);
-		    homeBearing = posBearing(posInfo.position, homePosInfo.position);
-		    System.println("Home bearing/Dist: " + homeBearing + ", " + homeDistance);
-		    System.println("Heading: " + currentHeading);
-		    // Calculate wind speed
-		    var windEstimate = windEstimator.update(currentGroundSpeed, currentHeading);
-		    if (windEstimate[0] != null && windEstimate[1] != null) {
-			    windSpeed = windEstimate[0];
-			    windDirection = windEstimate[1];
-			    currentAirSpeed = windEstimate[2];
-			    System.println("Wind speed/direction/airspeed: " + windSpeed*2.23694 + " / " + windDirection + " / " + currentAirSpeed*2.23694);
-			}
-			// Update flying state
-			updateFlyingState();
-			// Update fly to home estimates
-			updateReturnToHomeStats();
-			// Update custom fields
-			if (session != null) {
-				windSpeedField.setData(windSpeed);
-				windDirectionField.setData(windDirection);
-				airSpeedField.setData(currentAirSpeed);
-				homeDistanceField.setData(homeDistance);
-				homeDirectionField.setData(homeBearing);
-				timeToHomeField.setData(timeToHome);
-				timeToPointOfNoReturnField.setData(timeToPointOfNoReturn);
+			// Update home
+			var timeNow = Time.now().value();
+			if (homePosInfo == null && timeToSaveHome == 0) {
+				timeToSaveHome = timeNow + HOME_WAIT_TIME;
+				notification = new Notification("Home ...", false, 0);
+			} else if (homePosInfo == null && timeNow >= timeToSaveHome) {
+				homePosInfo = info;
+				homeAltitude = currentAltitude;
+				notification = new Notification("Home Set", false, 10);
+			} else if (homePosInfo != null) {		
+				// Update heading
+				if (currentGroundSpeedAvrg.avrg <= COMPASS_SPEED) {
+					currentHeading = Math.toDegrees(sensorInfo.heading);
+					System.println("Warning: GPS speed too low, using compass heading");
+				} else {
+					currentHeading = Math.toDegrees(posInfo.heading);
+				}
+				// Update ground speed
+				currentGroundSpeed = posInfo.speed;
+				currentGroundSpeedAvrg.update(currentGroundSpeed);
+				// Update vertical speed
+				currentVerticalSpeedAvrg.update(currentAltitude);
+				System.println("Vario: " + currentVerticalSpeedAvrg.derivative + "m/s");
+				// Calculate home distance and bearing
+			    homeDistance = posDistance(posInfo.position, homePosInfo.position);
+			    homeBearing = posBearing(posInfo.position, homePosInfo.position);
+			    System.println("Home bearing/Dist: " + homeBearing + ", " + homeDistance);
+			    System.println("Heading: " + currentHeading);
+			    // Calculate wind speed
+			    var windEstimate = windEstimator.update(currentGroundSpeed, currentHeading);
+			    if (windEstimate[0] != null && windEstimate[1] != null) {
+				    windSpeed = windEstimate[0];
+				    windDirection = windEstimate[1];
+				    currentAirSpeed = windEstimate[2];
+				    System.println("Wind speed/direction/airspeed: " + windSpeed*2.23694 + " / " + windDirection + " / " + currentAirSpeed*2.23694);
+				}
+				// Update flying state
+				updateFlyingState();
+				// Update fly to home estimates
+				updateReturnToHomeStats();
+				// Update custom fields
+				if (session != null) {
+					windSpeedField.setData(windSpeed);
+					windDirectionField.setData(windDirection);
+					airSpeedField.setData(currentAirSpeed);
+					homeDistanceField.setData(homeDistance);
+					homeDirectionField.setData(homeBearing);
+					timeToHomeField.setData(timeToHome);
+					timeToPointOfNoReturnField.setData(timeToPointOfNoReturn);
+				}
 			}
 		} else {
 			System.println("WARNING: Waiting for sensor data, can't process position update");
@@ -261,6 +273,7 @@ class PPGPilot {
 	      	timeToPointOfNoReturnField = session.createField("time_to_pnr", 6, FitContributor.DATA_TYPE_FLOAT, 
 	      		{:mesgType=>FitContributor.MESG_TYPE_RECORD, :units=>"sec"});	 	      		     			  	      		  
 	  		session.start();                                     // call start session
+	  		Utils.attention();
 	    	System.println("Activity recording started");
 	    }
 	} 
@@ -271,6 +284,7 @@ class PPGPilot {
          	session.stop();                                      // stop the session
           	session.save();                                      // save the session
           	session = null;                                      // set session control variable to null
+          	Utils.attention();
           	System.println("Activity recording stopped");
       	}	
 	}
