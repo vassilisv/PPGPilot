@@ -14,6 +14,7 @@ class PPGPilotRoundView extends WatchUi.View {
 	const M2MILE = 0.000621371;
 	const INFO_RADIUS = 0.6;
 	const HOME_FIELD_LOOP_PERIOD = 3; // sec
+	const REC_FLASH_PERIOD = 1; // sec
 	const ENABLE_FUEL_GAUGE = false;
 	var infoFontSize = null;
 	var titleFontSize = null;
@@ -26,6 +27,8 @@ class PPGPilotRoundView extends WatchUi.View {
     var homeFieldLoopSize = 2;
     var homeFieldLoopIdx = 0;
     var homeFieldLoopNextUpdate = 0;
+    var recFlashNextUpdate = 0;
+    var recVisible = false;
     var layoutInitDone = false;
     var dark = false;
 
@@ -85,13 +88,17 @@ class PPGPilotRoundView extends WatchUi.View {
         dc.clear();
         
 		// Draw text
-		if (dark) {
-        	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        } else {
-        	dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
-        }
         if (pilot.posInfo != null) {
         	var timeNow = Time.now().value();
+        	
+	        // Recording state
+	        var recordingState;
+	        if (pilot.session != null && pilot.session.isRecording()) {
+	        	recordingState = true;
+	        } else {
+	        	recordingState = false;
+	        }
+	        drawRecordingState(dc, 45, recordingState); 
         	        	
         	// Ground speed
         	var groundSpeed = pilot.currentGroundSpeed * MPS2MPH;
@@ -168,7 +175,8 @@ class PPGPilotRoundView extends WatchUi.View {
 	        // Vario
 	        } else {
 	        	drawVario(dc, pilot.currentVerticalSpeedAvrg.derivative);
-	        }      	            	   
+	        }   
+	         	            	   
 		}	        
         
         // Draw any notifications
@@ -194,6 +202,11 @@ class PPGPilotRoundView extends WatchUi.View {
     
     function drawInfoField(dc, angle, title, info) {
     	var pos = polar2cart(angle, INFO_RADIUS);
+		if (dark) {
+        	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        } else {
+        	dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+        }
     	dc.drawText(pos.x, pos.y-titleToInfoSpacing, titleFontSize, title, Graphics.TEXT_JUSTIFY_VCENTER | Graphics.TEXT_JUSTIFY_CENTER);
     	dc.drawText(pos.x, pos.y, infoFontSize, info, Graphics.TEXT_JUSTIFY_VCENTER | Graphics.TEXT_JUSTIFY_CENTER);
     }
@@ -262,6 +275,24 @@ class PPGPilotRoundView extends WatchUi.View {
     		dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
     		dc.drawLine(x, y, x - 15, y - 10);
     		dc.drawLine(x, y, x + 15, y - 10);    	
+    	}
+    }
+    
+    function drawRecordingState(dc, angle, recording) {
+    	var pos = polar2cart(angle, 0.8);
+    	var timeNow = Time.now().value();
+    	if (recording) {
+    		if (timeNow >= recFlashNextUpdate) {
+    			recVisible = !recVisible;
+    			recFlashNextUpdate = timeNow + REC_FLASH_PERIOD;
+    		}
+			if (recVisible) {
+    			dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+    			dc.fillCircle(pos.x, pos.y, 10);
+    		}
+    	} else {
+    		dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+    		dc.fillRectangle(pos.x-7, pos.y-7, 14, 14);
     	}
     }
     

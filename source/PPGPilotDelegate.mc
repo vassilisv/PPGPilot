@@ -15,7 +15,11 @@ class PPGPilotDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function onSelect() {
-		pilot.startSession();
+    	if (pilot.session != null) {
+    		pilot.stopSession();
+    	} else {
+			pilot.startSession();
+		}
 		return true;   
     }
     
@@ -40,7 +44,11 @@ class PPGPilotDelegate extends WatchUi.BehaviorDelegate {
     function onBack() {
     	WatchUi.popView(WatchUi.SLIDE_UP);
     	canPopView = false;
-    	currentViewIdx = currentViewIdx - 1;
+    	if (currentViewIdx > 0) {
+    		currentViewIdx = currentViewIdx - 1;
+    	}
 	}
+	
+
     
 }
