@@ -27,6 +27,7 @@ class PPGPilotRoundView extends WatchUi.View {
     var homeFieldLoopIdx = 0;
     var homeFieldLoopNextUpdate = 0;
     var layoutInitDone = false;
+    var dark = false;
 
     class PixelPos {
     	var x;
@@ -76,11 +77,19 @@ class PPGPilotRoundView extends WatchUi.View {
     // Update the view
     function onUpdate(dc) {
     	// Reset screen
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+    	if (dark) {
+        	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        } else {
+        	dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
+        }
         dc.clear();
         
 		// Draw text
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+		if (dark) {
+        	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        } else {
+        	dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+        }
         if (pilot.posInfo != null) {
         	var timeNow = Time.now().value();
         	        	
