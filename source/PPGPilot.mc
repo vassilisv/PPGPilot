@@ -76,7 +76,7 @@ class PPGPilot {
         windEstimator = new WindEstimator(10, 3);
         // Setup average speed and vario
         currentGroundSpeedAvrg = new MovingAverage(10, 0);
-        currentVerticalSpeedAvrg = new DerivativeAverage(2);
+        currentVerticalSpeedAvrg = new DerivativeAverage(1);
     	// Setup timer
         dataTimer = new Timer.Timer();
         dataTimer.start(method(:timerCallback), 200, true);
