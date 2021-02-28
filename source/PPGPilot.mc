@@ -17,6 +17,8 @@ class PPGPilot {
 	const MAX_FLIGHT_DURATION = 60*60; // sec
 	const HOME_LOCK_TOLERANCE = 10; // +/- degrees tolerance from home direction
 	const HOME_WAIT_TIME = 15; // sec
+	const GUST_ALERT_REFRESH_PERIOD = 30; // sec
+	const GUST_ALERT_SERVER_URL = "https://gust.vrhome.net";
     var dataTimer; // as per API
     var posInfo = null; // as per API
     var sensorInfo; // as per API
@@ -52,6 +54,10 @@ class PPGPilot {
     var landTime = 0; // sec
     var timeToPointOfNoReturn = 0; // sec
     var homeLocked = false; // locked towards home
+    var gustAccessToken = null;
+    var gustServerURL = null;
+    var gustAlert = null; // Structure with alert information
+    var timeOfNextGustUpdate = 0;
     
     class Notification {
     	var msg;
@@ -160,6 +166,8 @@ class PPGPilot {
 				updateFlyingState();
 				// Update fly to home estimates
 				updateReturnToHomeStats();
+				// Update gust alert status
+				updateGustAlertStatus();
 				// Update custom fields
 				if (session != null) {
 					windSpeedField.setData(windSpeed);
@@ -177,12 +185,29 @@ class PPGPilot {
 	    System.println("Position acc: " + posInfo.accuracy); 
 	}
 	
+	// Periodic updates of gust alert status
+	function updateGustAlertStatus() {
+		// First check for API token for getting alert status from web service, if none then disable gust alerts
+    	if (gustAccessToken == null && Rez.Strings has :GustAccessToken && Rez.Strings has :GustServerURL) {
+    		gustAccessToken = WatchUi.loadResource(Rez.Strings.GustAccessToken);
+    		gustServerURL = WatchUi.loadResource(Rez.Strings.GustServerURL);
+    	} 
+    	
+    	// Check if time for next update
+    	var timeNow = Time.now().value();
+    	if (gustAccessToken != null && gustServerURL != null && (timeOfNextGustUpdate == 0 || timeNow >= timeOfNextGustUpdate)) {
+    		timeOfNextGustUpdate = timeNow + GUST_ALERT_REFRESH_PERIOD;
+    		System.println("Creating new gust alert status request");
+    		makeGustAlertStatusRequest();
+    	}
+	}
+	
 	// Get alert status from gust monitor web service, response is returned in the onGustAlertResponse function
-	// TODO: Call periodically (e.g. once a min), get key from resources if not there don't make call, calculate distances from current position
 	function makeGustAlertStatusRequest() {
-	   	var url = "https://power.local/api/v1/alert";      
+	   	var url = gustServerURL + "/api/v1/alert";      
 	   	var params = {                                             
-	          "access_token" => "supersecretkey"
+	          "access_token" => gustAccessToken,
+	          "source" => "PPGPilot"
 	   	};
 	   	var options = {                                           
 	       :method => Communications.HTTP_REQUEST_METHOD_GET,     
@@ -192,11 +217,13 @@ class PPGPilot {
 	} 
 	
 	// Callback for gust alert requests
+	// TODO: Add information on distance from stations
     function onGustAlertResponse(responseCode, data) {
     	if (responseCode == 200) {
     		System.println("Got alert data: " + data);
+    		gustAlert = data;
     	} else {
-    		System.println("Got error code: " + responseCode);
+    		System.println("Got alert error code: " + responseCode);
     	}
     }
 	
