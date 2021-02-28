@@ -8,6 +8,7 @@ using Toybox.System;
 using Toybox.Time;
 using Toybox.ActivityRecording;
 using Toybox.FitContributor;
+using Toybox.Communications;
 using Utils;
 
 class PPGPilot { 
@@ -175,6 +176,29 @@ class PPGPilot {
 		}
 	    System.println("Position acc: " + posInfo.accuracy); 
 	}
+	
+	// Get alert status from gust monitor web service, response is returned in the onGustAlertResponse function
+	// TODO: Call periodically (e.g. once a min), get key from resources if not there don't make call, calculate distances from current position
+	function makeGustAlertStatusRequest() {
+	   	var url = "https://power.local/api/v1/alert";      
+	   	var params = {                                             
+	          "access_token" => "supersecretkey"
+	   	};
+	   	var options = {                                           
+	       :method => Communications.HTTP_REQUEST_METHOD_GET,     
+	       :headers => {"Content-Type" => Communications.REQUEST_CONTENT_TYPE_URL_ENCODED}
+	   	};                                                                  
+	   Communications.makeWebRequest(url, params, options, method(:onGustAlertResponse));   
+	} 
+	
+	// Callback for gust alert requests
+    function onGustAlertResponse(responseCode, data) {
+    	if (responseCode == 200) {
+    		System.println("Got alert data: " + data);
+    	} else {
+    		System.println("Got error code: " + responseCode);
+    	}
+    }
 	
 	// Calculate distance between two positions
 	// Ref: https://www.movable-type.co.uk/scripts/latlong.html
