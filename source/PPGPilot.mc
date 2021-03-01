@@ -19,6 +19,7 @@ class PPGPilot {
 	const HOME_WAIT_TIME = 15; // sec
 	const GUST_ALERT_REFRESH_PERIOD = 30; // sec
 	const GUST_ALERT_SERVER_URL = "https://gust.vrhome.net";
+	const GUST_ALERT_NOTIFICATION_PERIOD = 300; // sec
     var dataTimer; // as per API
     var posInfo = null; // as per API
     var sensorInfo; // as per API
@@ -57,6 +58,7 @@ class PPGPilot {
     var gustAccessToken = null;
     var gustServerURL = null;
     var gustAlert = null; // Structure with alert information
+    var timeOfNextGustNotification = 0;
     var timeOfNextGustUpdate = 0;
     
     class Notification {
@@ -219,9 +221,15 @@ class PPGPilot {
 	// Callback for gust alert requests
 	// TODO: Add information on distance from stations
     function onGustAlertResponse(responseCode, data) {
+    	var timeNow = Time.now().value();
     	if (responseCode == 200) {
     		System.println("Got alert data: " + data);
     		gustAlert = data;
+    		// Check if notification is needed
+			if (gustAlert["severity_name"].equals("ALERT") && timeNow >= timeOfNextGustNotification) {
+				timeOfNextGustNotification = timeNow + GUST_ALERT_NOTIFICATION_PERIOD;
+				notification = new Notification("Gust ALERT", true, 5);
+			}
     	} else {
     		System.println("Got alert error code: " + responseCode);
     	}

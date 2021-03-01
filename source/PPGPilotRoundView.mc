@@ -14,8 +14,9 @@ class PPGPilotRoundView extends WatchUi.View {
 	const M2MILE = 0.000621371;
 	const INFO_RADIUS = 0.6;
 	const HOME_FIELD_LOOP_PERIOD = 3; // sec
-	const REC_FLASH_PERIOD = 1; // sec
+	const REC_FLASH_PERIOD = 0; // sec
 	const ENABLE_FUEL_GAUGE = false;
+	const ALERT_FLASH_PERIOD = 0.5; // sec
 	var infoFontSize = null;
 	var titleFontSize = null;
 	var titleToInfoSpacing = 0;
@@ -31,6 +32,8 @@ class PPGPilotRoundView extends WatchUi.View {
     var recVisible = false;
     var layoutInitDone = false;
     var dark = false;
+    var alertFlashNextUpdate = 0;
+    var alertVisible = false;
 
     class PixelPos {
     	var x;
@@ -99,6 +102,11 @@ class PPGPilotRoundView extends WatchUi.View {
 	        	recordingState = false;
 	        }
 	        drawRecordingState(dc, 45, recordingState); 
+	        
+	        // Gust alarm state
+	        if (pilot.gustAlert != null) {
+	        	drawGustAlarmState(dc, -45, pilot.gustAlert);
+	        }
         	        	
         	// Ground speed
         	var groundSpeed = pilot.currentGroundSpeed * MPS2MPH;
@@ -141,7 +149,7 @@ class PPGPilotRoundView extends WatchUi.View {
  
  			// Home heading
  			var homeHeading = -(pilot.currentHeading-pilot.homeBearing);
-        	drawDirection(dc, homeHeading, Graphics.COLOR_GREEN, 1); 
+        	drawDirection(dc, homeHeading, Graphics.COLOR_DK_GREEN, 1); 
         	
         	// Fuel gauge
         	if (ENABLE_FUEL_GAUGE) {
@@ -185,7 +193,7 @@ class PPGPilotRoundView extends WatchUi.View {
         	dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
 			dc.fillRectangle(0, 0, width, 0.35*height);
         	if (pilot.notification.warn) {
-        		dc.setColor(Graphics.COLOR_ORANGE, Graphics.COLOR_TRANSPARENT);
+        		dc.setColor(Graphics.COLOR_DK_RED, Graphics.COLOR_TRANSPARENT);
         	} else {
         		dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
         	}
@@ -286,13 +294,42 @@ class PPGPilotRoundView extends WatchUi.View {
     			recVisible = !recVisible;
     			recFlashNextUpdate = timeNow + REC_FLASH_PERIOD;
     		}
-			if (recVisible) {
+			if (REC_FLASH_PERIOD == 0 || recVisible) {
     			dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
-    			dc.fillCircle(pos.x, pos.y, 10);
+    			dc.fillCircle(pos.x, pos.y, 9);
     		}
     	} else {
     		dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
     		dc.fillRectangle(pos.x-7, pos.y-7, 14, 14);
+    	}
+    }
+    
+    function drawGustAlarmState(dc, angle, gustAlert) {
+    	var pos = polar2cart(angle, 0.8);
+    	var timeNow = Time.now().value();
+    	var size = 10;
+    	var sizeAlert = 15;
+    	// Update flashing state
+		if (timeNow >= alertFlashNextUpdate) {
+			alertVisible = !alertVisible;
+			alertFlashNextUpdate = timeNow + ALERT_FLASH_PERIOD;
+		}    	
+    	// Draw 
+    	if (gustAlert["severity_name"].equals("CLEAR")) {
+    		dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
+    		dc.fillPolygon([[pos.x, pos.y-size], [pos.x-size, pos.y+size], [pos.x+size, pos.y+size]]);  
+    	} else if (gustAlert["severity_name"].equals("WARNING")) {
+    		if (ALERT_FLASH_PERIOD == 0 || alertVisible) {
+	    		dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
+	    		dc.fillPolygon([[pos.x, pos.y-size], [pos.x-size, pos.y+size], [pos.x+size, pos.y+size]]);	
+	    	}	
+    	} else if (gustAlert["severity_name"].equals("ALERT")) {
+    		if (ALERT_FLASH_PERIOD == 0 || alertVisible) {
+	    		dc.setColor(Graphics.COLOR_DK_RED, Graphics.COLOR_TRANSPARENT);
+	    		dc.fillPolygon([[pos.x, pos.y-sizeAlert], [pos.x-sizeAlert, pos.y+sizeAlert], [pos.x+sizeAlert, pos.y+sizeAlert]]);  
+	    	}	
+    	} else {
+    		System.println("Unknown alert name: " + gustAlert["severity_name"]);
     	}
     }
     

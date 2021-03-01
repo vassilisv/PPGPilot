@@ -138,7 +138,7 @@ class PPGPilotRectView extends WatchUi.View {
         	dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
 			dc.fillRectangle(0, 0, dc.getWidth(), NOTIFICATION_HEIGHT_RATIO*dc.getHeight());
         	if (pilot.notification.warn) {
-        		dc.setColor(Graphics.COLOR_ORANGE, Graphics.COLOR_TRANSPARENT);
+        		dc.setColor(Graphics.COLOR_DK_RED, Graphics.COLOR_TRANSPARENT);
         	} else {
         		dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
         	}
