@@ -18,7 +18,6 @@ class PPGPilot {
 	const HOME_LOCK_TOLERANCE = 10; // +/- degrees tolerance from home direction
 	const HOME_WAIT_TIME = 15; // sec
 	const GUST_ALERT_REFRESH_PERIOD = 30; // sec
-	const GUST_ALERT_SERVER_URL = "https://gust.vrhome.net";
 	const GUST_ALERT_NOTIFICATION_PERIOD = 300; // sec
     var dataTimer; // as per API
     var posInfo = null; // as per API
