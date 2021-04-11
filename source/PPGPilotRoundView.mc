@@ -12,12 +12,14 @@ class PPGPilotRoundView extends WatchUi.View {
 	const MPS2MPH = 2.23694;
 	const M2F = 3.28084;
 	const M2MILE = 0.000621371;
+	const F2MILE = 0.000189394;
 	const INFO_RADIUS = 0.6;
 	const HOME_FIELD_LOOP_PERIOD = 3; // sec
 	const REC_FLASH_PERIOD = 0; // sec
 	const ENABLE_FUEL_GAUGE = false;
 	const ALERT_FLASH_PERIOD = 0.5; // sec
 	var infoFontSize = null;
+	var txtInfoFontSize = null;
 	var titleFontSize = null;
 	var titleToInfoSpacing = 0;
 	var pilot; // PPGPilot instance
@@ -57,10 +59,12 @@ class PPGPilotRoundView extends WatchUi.View {
 	    	var titleToInfoSpacingScale;
 	    	if (dc.getWidth() < 240) {
 	    		infoFontSize = Graphics.FONT_NUMBER_HOT;
+	    		txtInfoFontSize = Graphics.FONT_SYSTEM_LARGE;
 	    		titleFontSize = Graphics.FONT_XTINY;
 	    		titleToInfoSpacingScale = 16.0; 
 	    	} else {
 	     		infoFontSize = Graphics.FONT_NUMBER_MEDIUM;
+	     		txtInfoFontSize = Graphics.FONT_SYSTEM_LARGE;
 	    		titleFontSize = Graphics.FONT_XTINY;
 	    		titleToInfoSpacingScale = 5.0; 
 	    	}   		
@@ -217,6 +221,17 @@ class PPGPilotRoundView extends WatchUi.View {
         }
     	dc.drawText(pos.x, pos.y-titleToInfoSpacing, titleFontSize, title, Graphics.TEXT_JUSTIFY_VCENTER | Graphics.TEXT_JUSTIFY_CENTER);
     	dc.drawText(pos.x, pos.y, infoFontSize, info, Graphics.TEXT_JUSTIFY_VCENTER | Graphics.TEXT_JUSTIFY_CENTER);
+    }
+    
+    function drawTextField(dc, angle, title, txt) {
+    	var pos = polar2cart(angle, INFO_RADIUS);
+		if (dark) {
+        	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        } else {
+        	dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+        }
+    	dc.drawText(pos.x, pos.y-titleToInfoSpacing, titleFontSize, title, Graphics.TEXT_JUSTIFY_VCENTER | Graphics.TEXT_JUSTIFY_CENTER);
+    	dc.drawText(pos.x, pos.y, txtInfoFontSize, txt, Graphics.TEXT_JUSTIFY_VCENTER | Graphics.TEXT_JUSTIFY_CENTER);
     }
     
     function drawDirection(dc, angle, color, arrow) {

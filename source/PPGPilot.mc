@@ -19,6 +19,7 @@ class PPGPilot {
 	const HOME_WAIT_TIME = 15; // sec
 	const GUST_ALERT_REFRESH_PERIOD = 30; // sec
 	const GUST_ALERT_NOTIFICATION_PERIOD = 300; // sec
+	var sessionId; // random ID for the session
     var dataTimer; // as per API
     var posInfo = null; // as per API
     var sensorInfo; // as per API
@@ -84,6 +85,10 @@ class PPGPilot {
     }
 
     function initialize() {
+    	// Create session ID
+    	Math.srand(Time.now().value());
+    	sessionId = Math.rand();
+    	System.println("Started PPGPilot with session ID: " + sessionId);
         // Setup wind estimator
         windEstimator = new WindEstimator(10, 3);
         // Setup average speed and vario
@@ -205,10 +210,19 @@ class PPGPilot {
 	
 	// Get alert status from gust monitor web service, response is returned in the onGustAlertResponse function
 	function makeGustAlertStatusRequest() {
-	   	var url = gustServerURL + "/api/v1/alert";      
+	   	var url = gustServerURL + "/api/v1/area";    
+	   	var pos = posInfo.position.toDegrees();
 	   	var params = {                                             
 	          "access_token" => gustAccessToken,
-	          "source" => "PPGPilot"
+	          "source" => "PPGPilot",
+	          "id" => sessionId,
+	          "lat" => pos[0],
+	          "lon" => pos[1],
+	          "heading" => Math.toDegrees(posInfo.heading),
+	          "alt" => currentAltitude,
+	          "ground_speed" => currentGroundSpeedAvrg.avrg,
+	          "wind_speed" => windSpeed,
+	          "wind_dir" => windDirection
 	   	};
 	   	var options = {                                           
 	       :method => Communications.HTTP_REQUEST_METHOD_GET,     

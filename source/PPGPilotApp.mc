@@ -36,7 +36,8 @@ class PPGPilotApp extends Application.AppBase {
     	var settings = System.getDeviceSettings();
     	if (settings.screenShape == 1) {
     		System.println("Starting round screen view (" + settings.screenWidth + "x" + settings.screenHeight + ")");
-        	views.add( new PPGPilotRoundView(pilot) );
+    		views.add( new PPGPilotRoundView(pilot) );
+        	views.add( new PPGPilotRoundWindGustView(pilot) );
         } else if (settings.screenShape == 3) {
     		System.println("Starting rectangular screen view (" + settings.screenWidth + "x" + settings.screenHeight + ")");
         	views.add( new PPGPilotRectView(pilot) );        
