@@ -236,7 +236,8 @@ class PPGPilot {
     function onGustAlertResponse(responseCode, data) {
     	var timeNow = Time.now().value();
     	if (responseCode == 200) {
-    		System.println("Got alert data: " + data);
+    		//System.println("Got alert data: " + data);
+    		System.println("Got alert response");
     		gustAlert = data;
     		// Check if notification is needed
 			if (gustAlert["severity_name"].equals("ALERT") && timeNow >= timeOfNextGustNotification) {

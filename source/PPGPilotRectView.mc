@@ -19,7 +19,9 @@ class PPGPilotRectView extends WatchUi.View {
 	const LAYOUT_PROGRESS_CELL_HEIGHT_RATIO = 0.1;
 	const NOTIFICATION_HEIGHT_RATIO = 0.35;
 	const FIELD_LOOP_PERIOD = 3;
-	const MAX_VARIO = 2.0;
+	const VARIO_MAX = 3.0;
+	const VARIO_RESOLUTION = 0.1;
+	const BOUNDING_BOX = false;
 	var grids; // The layout grids, array
 	var pilot; // PPGPilot instance
 	var compass; // CompassView instance
@@ -76,32 +78,32 @@ class PPGPilotRectView extends WatchUi.View {
    			
         	// Ground speed
         	var groundSpeed = pilot.currentGroundSpeed * MPS2MPH;
-        	drawDataField(dc, grids[0], "GROUND SPD", groundSpeed.format("%02.1f"), null, null, true);   			
+        	drawDataField(dc, grids[0], "GROUND SPD", groundSpeed.format("%02.1f"), null, null, BOUNDING_BOX);   			
    			
 			// Wind or air speed
 			if (fieldLoopIdx == 0) {
 	        	var wSpd = pilot.windSpeed * MPS2MPH;
-	        	drawDataField(dc, grids[1], "WIND SPD", wSpd.format("%.1f"), null, null, true);  
+	        	drawDataField(dc, grids[1], "WIND SPD", wSpd.format("%.1f"), null, null, BOUNDING_BOX);  
 	        } else if (fieldLoopIdx == 1) {
 	        	var aSpd = pilot.currentAirSpeed * MPS2MPH;
-	        	drawDataField(dc, grids[1], "AIR SPD", aSpd.format("%.1f"), null, null, true);  
+	        	drawDataField(dc, grids[1], "AIR SPD", aSpd.format("%.1f"), null, null, BOUNDING_BOX);  
 	        }	        
 			
 			// Altitude
         	var alt = pilot.currentAltitudeOverHome * M2F;
-        	drawDataField(dc, grids[5], "ALT", alt.format("%04d"), null, null, true); 
+        	drawDataField(dc, grids[5], "ALT", alt.format("%04d"), null, null, BOUNDING_BOX); 
         	
 			// Distance from home
 			var homeDist = pilot.homeDistance*M2MILE;
-    		drawDataField(dc, grids[6], "HOME DIST", homeDist.format("%.1f"), null, null, true);        	
+    		drawDataField(dc, grids[6], "HOME DIST", homeDist.format("%.1f"), null, null, BOUNDING_BOX);        	
 
         	// Flight time and time to home
     		if (pilot.flying) {
         		var minsFlying = Math.round((timeNow - pilot.takeoffTime)/60);
 				var minsToHome = Math.round(pilot.timeToHome / 60);
-        		drawDataField(dc, grids[7], "TOT/RET", minsFlying.format("%02d") + "/" + minsToHome.format("%02d"), null, null, false);
+        		drawDataField(dc, grids[7], "TOT/RET", minsFlying.format("%02d") + "/" + minsToHome.format("%02d"), null, null, BOUNDING_BOX);
         	} else {
-        		drawDataField(dc, grids[7], "TOT/RET", "--/--", null, null, false);
+        		drawDataField(dc, grids[7], "TOT/RET", "--/--", null, null, BOUNDING_BOX);
         	}  
    			
         	// Fuel remaining before having to turn back
@@ -119,10 +121,10 @@ class PPGPilotRectView extends WatchUi.View {
 	        		color = Graphics.COLOR_GREEN;
 	        	}        	
         	}     	
-   			drawProgressBar(dc, grids[2], fuelRemaining, color);
+   			drawProgressBar(dc, grids[2], fuelRemaining, color, false);
    			
    			// Draw vario
-   			drawVarioBar(dc, grids[4], pilot.currentVerticalSpeedAvrg.derivative);
+   			drawVarioBar(dc, grids[4], pilot.currentVerticalSpeedAvrg.derivative, false);
    			
    			// Advance to next field in the loop if time
         	if (timeNow >= fieldLoopNextUpdate) {
@@ -260,6 +262,7 @@ class PPGPilotRectView extends WatchUi.View {
 		var compassY = (height-compassHeight)/2.0;
 		var fieldHeight = (height - compassHeight)/2.0;
 		var barWidth = (width - compassWidth)/2.0;
+		var barWidthOversize = 5;
 		// Grid 0 and 1, top two fields
 		grids[0] = [0, 0, Math.ceil(width/2), Math.ceil(fieldHeight)];
 		grids[1] = [Math.ceil(width/2), 0, Math.ceil(width/2), Math.ceil(fieldHeight)];
@@ -269,8 +272,8 @@ class PPGPilotRectView extends WatchUi.View {
 		// Grid 3, main compass rose
 		grids[3] = [Math.ceil(compassX), Math.ceil(compassY), Math.ceil(compassWidth), Math.ceil(compassHeight)];
 		// Grid 2 and 4, progress bars
-		grids[2] = [0, Math.ceil(fieldHeight), Math.ceil(barWidth), Math.ceil(compassHeight)];
-		grids[4] = [Math.ceil(barWidth+compassWidth), Math.ceil(fieldHeight), Math.ceil(barWidth), Math.ceil(compassHeight)];
+		grids[2] = [0, Math.ceil(fieldHeight), Math.ceil(barWidth+barWidthOversize), Math.ceil(compassHeight)];
+		grids[4] = [Math.ceil(barWidth+compassWidth-barWidthOversize), Math.ceil(fieldHeight), Math.ceil(barWidth+barWidthOversize), Math.ceil(compassHeight)];
 		// Grid 7, field in middle of compass rose
 		grids[7] = [Math.ceil(compassX+compassWidth*compassFieldPercent/2.0), Math.ceil(compassY+compassHeight*compassFieldPercent/2.0), Math.ceil(compassWidth*compassFieldPercent), Math.ceil(compassHeight*compassFieldPercent)];	 
 		// Done
@@ -304,7 +307,7 @@ class PPGPilotRectView extends WatchUi.View {
 	}
 	
 	// Draw a progress bar
-	function drawProgressBar(dc, screenPos, progress, color) {
+	function drawProgressBar(dc, screenPos, progress, color, boundingBox) {
 		var x = screenPos[0];
     	var y = screenPos[1];
     	var width = screenPos[2];
@@ -320,36 +323,78 @@ class PPGPilotRectView extends WatchUi.View {
     	dc.setColor(color, Graphics.COLOR_TRANSPARENT);
     	dc.fillRectangle(x, y+height-progressHeight, width, progressHeight);    
     	// Bounding box
-    	dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-    	dc.setPenWidth(1);
-    	dc.drawRectangle(x, y, width, height);
+    	if (boundingBox) {
+	    	dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+	    	dc.setPenWidth(1);
+	    	dc.drawRectangle(x, y, width, height);
+	    }
 	}	
 
 	// Draw a progress bar
-	function drawVarioBar(dc, screenPos, vario) {
+	function drawVarioBar(dc, screenPos, vario, boundingBox) {
 		var x = screenPos[0];
     	var y = screenPos[1];
     	var width = screenPos[2];
     	var height = screenPos[3];
-    	// Bound progress
-    	if (vario > MAX_VARIO) {
-    		vario = MAX_VARIO;
-    	} else if (vario < -MAX_VARIO) {
-    		vario = -MAX_VARIO;
+    	var centerX = x + width/2;
+    	var centerY = y + height/2;
+    	var bottomY = y + height;
+    	var topY = y;
+    	var arrowSpacing = 7;
+    	dc.setPenWidth(3);
+    	// Cap vario
+    	if (vario > VARIO_MAX) {
+    		vario = VARIO_MAX;
+    	} else if (vario < -VARIO_MAX) {
+    		vario = -VARIO_MAX;
     	}
-    	var varioHeight = (height/2.0)*(vario/MAX_VARIO);
-    	// Progress
-    	if (vario > 0) {
+    	// Draw vario arrows
+    	if (vario < VARIO_RESOLUTION && vario > -VARIO_RESOLUTION) {
+    		dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+    		dc.drawLine(centerX-width/2, centerY, centerX+width/2, centerY);
+    	} else {
+    		var numArrows = Math.round(Utils.abs(vario) / VARIO_RESOLUTION); 
+    		for (var n = 0; n < numArrows; ++n) {
+    			if (vario > 0) {
+    				var arrowY = centerY-n*arrowSpacing;
+    				if (arrowY > topY) {
+    					drawVarioArrow(dc, centerX, arrowY, true);
+    				} else {
+    					System.println("WARNING: Vario arrow out of bounds");
+    				}
+    			} else {
+    				var arrowY = centerY+n*arrowSpacing;
+    				if (arrowY < bottomY) {
+    					drawVarioArrow(dc, centerX, arrowY, false);
+    				} else {
+    					System.println("WARNING: Vario arrow out of bounds");
+    				}
+    			}
+    		}
+		}
+    	// Bounding box
+    	if (boundingBox) {
+	    	dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+	    	dc.setPenWidth(1);
+	    	dc.drawRectangle(x, y, width, height);
+	    }
+	}	
+	
+    function drawVarioArrow(dc, x, y, dirUp) {
+    	var dimX = 10; //15;
+    	var dimY = 7; //10;
+    	if (dirUp) {
     		dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
-    		dc.fillRectangle(x, y+height/2.0-varioHeight, width, varioHeight);
+    		dc.drawLine(x, y, x - dimX, y + dimY);
+    		dc.drawLine(x, y, x + dimX, y + dimY);
     	} else {
     		dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
-    		dc.fillRectangle(x, y+height/2.0, width, -varioHeight);
+    		dc.drawLine(x, y, x - dimX, y - dimY);
+    		dc.drawLine(x, y, x + dimX, y - dimY);    	
     	}
-    	// Bounding box
-    	dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-    	dc.setPenWidth(1);
-    	dc.drawRectangle(x, y, width, height);
-	}		
+    }
+    
+	
+	
 	
 }

@@ -73,7 +73,7 @@ class CompassView {
 	
 	function drawWindDirection(dc, center_x, center_y, size, direction_rad) {
 		var radius = size / 2 - 10;
-		dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
+		dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
 		var xy1 = pol2Cart(center_x, center_y, direction_rad, radius-radius/2.5);
 		var xy2 = pol2Cart(center_x, center_y, direction_rad-Math.PI/25, radius-radius/10);
 		var xy3 = pol2Cart(center_x, center_y, direction_rad+Math.PI/25, radius-radius/10);
