@@ -19,9 +19,11 @@ class PPGPilotRectView extends WatchUi.View {
 	const LAYOUT_PROGRESS_CELL_HEIGHT_RATIO = 0.1;
 	const NOTIFICATION_HEIGHT_RATIO = 0.35;
 	const FIELD_LOOP_PERIOD = 3;
-	const VARIO_MAX = 3.0;
-	const VARIO_RESOLUTION = 0.1;
+	const VARIO_MAX = 2.5;
+	const VARIO_RESOLUTION = 0.15;
 	const BOUNDING_BOX = false;
+	const REC_FLASH_PERIOD = 0; // sec
+	const ALERT_FLASH_PERIOD = 0.5; // sec
 	var grids; // The layout grids, array
 	var pilot; // PPGPilot instance
 	var compass; // CompassView instance
@@ -30,6 +32,10 @@ class PPGPilotRectView extends WatchUi.View {
     var fieldLoopNextUpdate = 0;
     var dark = false;
     var layoutInitDone = false;
+    var recFlashNextUpdate = 0;
+    var recVisible = false;
+    var alertFlashNextUpdate = 0;
+    var alertVisible = false;
     
     function initialize(pilot) {
         View.initialize();
@@ -72,6 +78,20 @@ class PPGPilotRectView extends WatchUi.View {
         }
         if (pilot.posInfo != null) {
         	var timeNow = Time.now().value();
+        	
+	        // Recording state
+	        var recordingState;
+	        if (pilot.session != null && pilot.session.isRecording()) {
+	        	recordingState = true;
+	        } else {
+	        	recordingState = false;
+	        }
+	        drawRecordingState(dc, grids[9], recordingState); 
+	        
+	        // Gust alarm state
+	        if (pilot.gustAlert != null) {
+	        	drawGustAlarmState(dc, grids[8], pilot.gustAlert);
+	        }
         	        	   			
    			// Draw compass rose
    			compass.update(dc, pilot.currentHeading, pilot.homeBearing, pilot.windDirection, pilot.homeLocked);
@@ -253,7 +273,7 @@ class PPGPilotRectView extends WatchUi.View {
 	
 	// Initialize the layout grid	
 	function initGridLayout(width, height) {
-		var grids = new [8];
+		var grids = new [10];
 		var compassWidthPercent = 0.87;
 		var compassFieldPercent = 0.5;
 		var compassWidth = width*compassWidthPercent;
@@ -262,7 +282,7 @@ class PPGPilotRectView extends WatchUi.View {
 		var compassY = (height-compassHeight)/2.0;
 		var fieldHeight = (height - compassHeight)/2.0;
 		var barWidth = (width - compassWidth)/2.0;
-		var barWidthOversize = 5;
+		var barWidthOversize = 7;
 		// Grid 0 and 1, top two fields
 		grids[0] = [0, 0, Math.ceil(width/2), Math.ceil(fieldHeight)];
 		grids[1] = [Math.ceil(width/2), 0, Math.ceil(width/2), Math.ceil(fieldHeight)];
@@ -276,6 +296,10 @@ class PPGPilotRectView extends WatchUi.View {
 		grids[4] = [Math.ceil(barWidth+compassWidth-barWidthOversize), Math.ceil(fieldHeight), Math.ceil(barWidth+barWidthOversize), Math.ceil(compassHeight)];
 		// Grid 7, field in middle of compass rose
 		grids[7] = [Math.ceil(compassX+compassWidth*compassFieldPercent/2.0), Math.ceil(compassY+compassHeight*compassFieldPercent/2.0), Math.ceil(compassWidth*compassFieldPercent), Math.ceil(compassHeight*compassFieldPercent)];	 
+		// Grid 8, gust alert status
+		grids[8] = [grids[3][0]+0.14*width, grids[3][1]+7, 0, 0];
+		// Grid 9, recording status
+		grids[9] = [grids[3][0]+0.75*width, grids[3][1]+7, 0, 0];
 		// Done
 		return grids;
 	}
@@ -381,8 +405,8 @@ class PPGPilotRectView extends WatchUi.View {
 	}	
 	
     function drawVarioArrow(dc, x, y, dirUp) {
-    	var dimX = 10; //15;
-    	var dimY = 7; //10;
+    	var dimX = 11; //15;
+    	var dimY = 8; //10;
     	if (dirUp) {
     		dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
     		dc.drawLine(x, y, x - dimX, y + dimY);
@@ -394,7 +418,49 @@ class PPGPilotRectView extends WatchUi.View {
     	}
     }
     
-	
-	
+    function drawRecordingState(dc, screenPos, recording) {
+    	var timeNow = Time.now().value();
+    	if (recording) {
+    		if (timeNow >= recFlashNextUpdate) {
+    			recVisible = !recVisible;
+    			recFlashNextUpdate = timeNow + REC_FLASH_PERIOD;
+    		}
+			if (REC_FLASH_PERIOD == 0 || recVisible) {
+    			dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+    			dc.fillCircle(screenPos[0], screenPos[1], 9);
+    		}
+    	} else {
+    		dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+    		dc.fillRectangle(screenPos[0]-7, screenPos[1]-7, 14, 14);
+    	}
+    }
+
+    function drawGustAlarmState(dc, screenPos, gustAlert) {
+    	var timeNow = Time.now().value();
+    	var size = 10;
+    	var sizeAlert = 15;
+    	// Update flashing state
+		if (timeNow >= alertFlashNextUpdate) {
+			alertVisible = !alertVisible;
+			alertFlashNextUpdate = timeNow + ALERT_FLASH_PERIOD;
+		}    	
+    	// Draw 
+    	if (gustAlert["severity_name"].equals("CLEAR")) {
+    		dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
+    		dc.fillPolygon([[screenPos[0], screenPos[1]-size], [screenPos[0]-size, screenPos[1]+size], [screenPos[0]+size, screenPos[1]+size]]);  
+    	} else if (gustAlert["severity_name"].equals("WARNING")) {
+    		if (ALERT_FLASH_PERIOD == 0 || alertVisible) {
+	    		dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
+	    		dc.fillPolygon([[screenPos[0], screenPos[1]-size], [screenPos[0]-size, screenPos[1]+size], [screenPos[0]+size, screenPos[1]+size]]);	
+	    	}	
+    	} else if (gustAlert["severity_name"].equals("ALERT")) {
+    		if (ALERT_FLASH_PERIOD == 0 || alertVisible) {
+	    		dc.setColor(Graphics.COLOR_DK_RED, Graphics.COLOR_TRANSPARENT);
+	    		dc.fillPolygon([[screenPos[0], screenPos[1]-sizeAlert], [screenPos[0]-sizeAlert, screenPos[1]+sizeAlert], [screenPos[0]+sizeAlert, screenPos[1]+sizeAlert]]);  
+	    	}	
+    	} else {
+    		System.println("Unknown alert name: " + gustAlert["severity_name"]);
+    	}
+    }
 	
 }
