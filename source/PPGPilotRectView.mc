@@ -12,6 +12,7 @@ class PPGPilotRectView extends WatchUi.View {
 	const MPS2MPH = 2.23694;
 	const M2F = 3.28084;
 	const M2MILE = 0.000621371;
+	const F2MILE = 0.000189394;
 	const NUMBER_FONT_SIZES = [Graphics.FONT_NUMBER_THAI_HOT, Graphics.FONT_NUMBER_HOT, Graphics.FONT_NUMBER_MEDIUM, Graphics.FONT_NUMBER_MILD, Graphics.FONT_SMALL];
 	const NUMBER_FONT_SIZES_SMALL = [Graphics.FONT_NUMBER_MILD, Graphics.FONT_SMALL, Graphics.FONT_TINY, Graphics.FONT_XTINY];
 	const TEXT_FONT_SIZES = [Graphics.FONT_SYSTEM_LARGE, Graphics.FONT_LARGE, Graphics.FONT_MEDIUM, Graphics.FONT_SMALL, Graphics.FONT_TINY, Graphics.FONT_XTINY];
@@ -49,7 +50,7 @@ class PPGPilotRectView extends WatchUi.View {
 	    	// Setup grid layout
 	    	grids = initGridLayout(dc.getWidth(), dc.getHeight());	
 	    	// Setup compass
-	    	compass = new CompassView(grids[3][0], grids[3][1], grids[3][2], grids[3][3], dark);	
+	    	compass = new CompassView(grids[3][0], grids[3][1], grids[3][2], grids[3][3], dark, true);	
 	        layoutInitDone = true;
         } else {
         	System.println("New layout request, skipping since already done");
@@ -98,32 +99,32 @@ class PPGPilotRectView extends WatchUi.View {
    			
         	// Ground speed
         	var groundSpeed = pilot.currentGroundSpeed * MPS2MPH;
-        	drawDataField(dc, grids[0], "GROUND SPD", groundSpeed.format("%02.1f"), null, null, BOUNDING_BOX);   			
+        	drawDataField(dc, grids[0], "GROUND SPD", groundSpeed.format("%02.1f"), null, null, BOUNDING_BOX, false);   			
    			
 			// Wind or air speed
 			if (fieldLoopIdx == 0) {
 	        	var wSpd = pilot.windSpeed * MPS2MPH;
-	        	drawDataField(dc, grids[1], "WIND SPD", wSpd.format("%.1f"), null, null, BOUNDING_BOX);  
+	        	drawDataField(dc, grids[1], "WIND SPD", wSpd.format("%.1f"), null, null, BOUNDING_BOX, false);  
 	        } else if (fieldLoopIdx == 1) {
 	        	var aSpd = pilot.currentAirSpeed * MPS2MPH;
-	        	drawDataField(dc, grids[1], "AIR SPD", aSpd.format("%.1f"), null, null, BOUNDING_BOX);  
+	        	drawDataField(dc, grids[1], "AIR SPD", aSpd.format("%.1f"), null, null, BOUNDING_BOX, false);  
 	        }	        
 			
 			// Altitude
         	var alt = pilot.currentAltitudeOverHome * M2F;
-        	drawDataField(dc, grids[5], "ALT", alt.format("%04d"), null, null, BOUNDING_BOX); 
+        	drawDataField(dc, grids[5], "ALT", alt.format("%04d"), null, null, BOUNDING_BOX, false); 
         	
 			// Distance from home
 			var homeDist = pilot.homeDistance*M2MILE;
-    		drawDataField(dc, grids[6], "HOME DIST", homeDist.format("%.1f"), null, null, BOUNDING_BOX);        	
+    		drawDataField(dc, grids[6], "HOME DIST", homeDist.format("%.1f"), null, null, BOUNDING_BOX, false);        	
 
         	// Flight time and time to home
     		if (pilot.flying) {
         		var minsFlying = Math.round((timeNow - pilot.takeoffTime)/60);
 				var minsToHome = Math.round(pilot.timeToHome / 60);
-        		drawDataField(dc, grids[7], "TOT/RET", minsFlying.format("%02d") + "/" + minsToHome.format("%02d"), null, null, BOUNDING_BOX);
+        		drawDataField(dc, grids[7], "TOT/RET", minsFlying.format("%02d") + "/" + minsToHome.format("%02d"), null, null, BOUNDING_BOX, false);
         	} else {
-        		drawDataField(dc, grids[7], "TOT/RET", "--/--", null, null, BOUNDING_BOX);
+        		drawDataField(dc, grids[7], "TOT/RET", "--/--", null, null, BOUNDING_BOX, false);
         	}  
    			
         	// Fuel remaining before having to turn back
@@ -174,7 +175,7 @@ class PPGPilotRectView extends WatchUi.View {
     }
     
     // Draw a datafield
-    function drawDataField(dc, screenPos, title, data, titleFonts, dataFonts, boundingBox) {
+    function drawDataField(dc, screenPos, title, data, titleFonts, dataFonts, boundingBox, isText) {
     	var x = screenPos[0];
     	var y = screenPos[1];
     	var width = screenPos[2];
@@ -184,7 +185,11 @@ class PPGPilotRectView extends WatchUi.View {
     		titleFonts = TEXT_FONT_SIZES;
     	}
     	if (dataFonts == null) {
-    		dataFonts = NUMBER_FONT_SIZES;
+    		if (isText) {
+    			dataFonts = TEXT_FONT_SIZES;
+    		} else {
+    			dataFonts = NUMBER_FONT_SIZES;
+    		}
     	}    	
     	// Text
     	if (dark) {
@@ -248,7 +253,7 @@ class PPGPilotRectView extends WatchUi.View {
 		dc.setPenWidth(3);
 		dc.fillPolygon([[pointX, pointY], [tailLX, tailLY], [tailCX, tailCY], [tailRX, tailRY]]);
 		// Title and data
-		drawDataField(dc, screenPos, title, data, null, TEXT_FONT_SIZES, true); 
+		drawDataField(dc, screenPos, title, data, null, TEXT_FONT_SIZES, true, false); 
 		// Bounding box
     	dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
     	dc.setPenWidth(1);

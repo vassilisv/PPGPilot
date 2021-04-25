@@ -40,7 +40,8 @@ class PPGPilotApp extends Application.AppBase {
         	views.add( new PPGPilotRoundWindGustView(pilot) );
         } else if (settings.screenShape == 3) {
     		System.println("Starting rectangular screen view (" + settings.screenWidth + "x" + settings.screenHeight + ")");
-        	views.add( new PPGPilotRectView(pilot) );        
+        	views.add( new PPGPilotRectView(pilot) );  
+        	views.add( new PPGPilotRectWindGustView(pilot) );      
         } else {
         	System.println("Screen type not known: " + settings.screenShape + " (" + settings.screenWidth + "x" + settings.screenHeight + ")");
         }

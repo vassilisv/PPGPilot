@@ -21,8 +21,9 @@ class CompassView {
 	hidden var y;
 	hidden var width;
 	hidden var height;
+	hidden var large_home_arrow;
 	
-	function initialize(x, y, width, height, dark_theme) {
+	function initialize(x, y, width, height, dark_theme, large_home_arrow) {
 		self.x = x;
 		self.y = y;
 		self.width = width;
@@ -31,6 +32,7 @@ class CompassView {
     	center_x = x + width / 2;
 		center_y = y + height / 2;
 		dark = dark_theme;
+		self.large_home_arrow = large_home_arrow;
 	}
           
 	function update(dc, heading, homeDirection, windDirection, homeLocked) {                
@@ -49,9 +51,11 @@ class CompassView {
 			}
             							
 			var display_logo_orientation = true;
-            if( display_logo_orientation ){
-            	var home_direction_rad = Math.toRadians(homeDirection); 
+			var home_direction_rad = Math.toRadians(homeDirection); 
+            if( display_logo_orientation && large_home_arrow){
             	drawLogoOrientation(dc, center_x, center_y, size_max, heading_rad-home_direction_rad, homeLocked);
+			} else {
+				drawSmallHomeDirection(dc, center_x, center_y, size_max, heading_rad-home_direction_rad);
 			}
 			
 			var display_text_orientation = false;
@@ -60,7 +64,7 @@ class CompassView {
 				var size = size_max;
 				drawTextOrientation(dc, center_x, y, size, heading_rad);
 			}
-						
+						 
 			var display_compass = true;
 			if( display_compass ){
 				drawCompass(dc, center_x, center_y, size_max);
@@ -77,6 +81,15 @@ class CompassView {
 		var xy1 = pol2Cart(center_x, center_y, direction_rad, radius-radius/2.5);
 		var xy2 = pol2Cart(center_x, center_y, direction_rad-Math.PI/25, radius-radius/10);
 		var xy3 = pol2Cart(center_x, center_y, direction_rad+Math.PI/25, radius-radius/10);
+		dc.fillPolygon([xy1, xy2, xy3]);
+	}
+	
+	function drawSmallHomeDirection(dc, center_x, center_y, size, direction_rad) {
+		var radius = size / 2 - 10;
+		dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_TRANSPARENT);
+		var xy1 = pol2Cart(center_x, center_y, direction_rad, radius-radius/10);
+		var xy2 = pol2Cart(center_x, center_y, direction_rad-Math.PI/17, radius-radius/2.8);
+		var xy3 = pol2Cart(center_x, center_y, direction_rad+Math.PI/17, radius-radius/2.8);
 		dc.fillPolygon([xy1, xy2, xy3]);
 	}
 	
